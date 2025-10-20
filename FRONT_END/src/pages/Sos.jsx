@@ -5,7 +5,7 @@ import axios from "axios";
 
 const API_URL = "http://127.0.0.1:8000/api"; // include /api prefix
 
-export default function Sos({ onLogout, onNav, onBack, onUpdateDashboard }) {
+export default function Sos({ onLogout, onNav, onUpdateDashboard }) {
   const [loading, setLoading] = useState(false);
 
   const handleSendSos = async () => {
@@ -62,11 +62,7 @@ export default function Sos({ onLogout, onNav, onBack, onUpdateDashboard }) {
           </ul>
         </div>
 
-        {onBack && (
-          <button className="back-button" onClick={onBack}>
-            ← Back
-          </button>
-        )}
+        
       </div>
     </>
   );

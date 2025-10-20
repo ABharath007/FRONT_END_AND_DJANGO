@@ -60,7 +60,6 @@ export default function App() {
           )}
           {page === "sos" && (
             <Sos
-              onBack={handleBack}
               onLogout={handleLogout}
               onNav={setPage}
             />
