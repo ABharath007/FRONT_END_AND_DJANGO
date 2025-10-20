@@ -2,6 +2,21 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import SOSReport, LocationShare, Alert, Contact, HeatmapPoint, UserContact, Message,UserProfile
 
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'password') # Add all fields
+        extra_kwargs = {'password': {'write_only': True}} # Make password write-only
+
+    def create(self, validated_data):
+        # Use create_user to properly hash the password
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
+
 # ---------- USER SERIALIZER ----------
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:

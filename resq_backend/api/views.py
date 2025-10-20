@@ -2,6 +2,7 @@ from rest_framework import generics
 from django.contrib.auth.models import User
 from .serializers import (
     UserSerializer,
+    RegisterSerializer,
     SOSReportSerializer,
     HeatmapPointSerializer,
     UserContactSerializer,
@@ -25,7 +26,7 @@ from .models import (
 # ---------- USER REGISTRATION ----------
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
 # ---------- DASHBOARD ----------
