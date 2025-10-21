@@ -50,14 +50,53 @@ class DashboardView(APIView):
         }
         return Response(data)
 
-# ---------- HEATMAP ----------
-class HeatmapDataView(APIView):
-    permission_classes = [IsAuthenticated]
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow owners of an object to edit or delete it.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
 
-    def get(self, request):
-        points = HeatmapPoint.objects.all()
-        serializer = HeatmapPointSerializer(points, many=True)
-        return Response(serializer.data)
+        # Write permissions are only allowed to the owner of the incident.
+        return obj.user == request.user
+
+# ---------- HEATMAP ----------
+# MODIFIED: Replaced HeatmapDataView with two more specific generic views
+
+class HeatmapDataListCreateView(generics.ListCreateAPIView):
+    """
+    View to list active heatmap incidents and create new ones.
+    """
+    serializer_class = HeatmapPointSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        This view should return a list of all active (non-expired) heatmap points.
+        """
+        return HeatmapPoint.objects.filter(expires_at__gt=timezone.now())
+
+    def perform_create(self, serializer):
+        """
+        Set the user and calculate the expiration time upon creation.
+        """
+        duration_seconds = serializer.validated_data.get('duration')
+        expires_at = timezone.now() + timedelta(seconds=duration_seconds)
+        serializer.save(user=self.request.user, expires_at=expires_at)
+
+
+class HeatmapDataDetailView(generics.RetrieveDestroyAPIView):
+    """
+    View to retrieve or delete a heatmap incident.
+    Deletion is only allowed for the user who created it.
+    """
+    queryset = HeatmapPoint.objects.all()
+    serializer_class = HeatmapPointSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
 
 # ---------- CONTACTS ----------
 class ContactList(generics.ListCreateAPIView):

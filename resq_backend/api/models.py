@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class SOSReport(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -40,12 +41,30 @@ class Contact(models.Model):
     def __str__(self):
         return f"{self.name} ({self.phone_number})"
 class HeatmapPoint(models.Model):
+    INCIDENT_TYPES = [
+        ('flood', 'Flood'),
+        ('earthquake', 'Earthquake'),
+        ('fire', 'Fire'),
+        ('roadblock', 'Roadblock'),
+        ('other', 'Other'),
+    ]
+
+    # MODIFIED: Link to the user who created the incident
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='heatmap_points')
+    
     lat = models.FloatField()
     lng = models.FloatField()
-    intensity = models.FloatField(default=1)  # optional, default 1
+    # intensity field is no longer needed as it's handled on the frontend
+    incident_type = models.CharField(max_length=20, choices=INCIDENT_TYPES, default='other')
+    description = models.TextField(blank=True)
+
+    # NEW: Timestamps for creation and expiration
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField() # This will be set in the view
 
     def __str__(self):
-        return f"{self.lat}, {self.lng}: {self.intensity}"
+        return f"{self.get_incident_type_display()} by {self.user.username} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
 class UserContact(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_contacts")
     contact = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contacted_by")

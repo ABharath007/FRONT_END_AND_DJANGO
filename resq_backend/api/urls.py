@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (
     CreateUserView,
     DashboardView,
-    HeatmapDataView,
+    HeatmapDataListCreateView,
+    HeatmapDataDetailView,
     ContactList,
     ContactDetail,
     UserContactList,
@@ -14,7 +15,8 @@ from .views import (
 urlpatterns = [
     path('register/', CreateUserView.as_view(), name='register'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
-    path('heatmap-data/', HeatmapDataView.as_view(), name='heatmap-data'),
+    path('heatmap-data/', HeatmapDataListCreateView.as_view(), name='heatmap-list-create'),
+    path('heatmap-data/<int:pk>/', HeatmapDataDetailView.as_view(), name='heatmap-detail'),
 
     # Contacts
     path('contacts/', ContactList.as_view(), name='contacts'),          # list & add
