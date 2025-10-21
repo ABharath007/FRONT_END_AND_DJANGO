@@ -71,15 +71,16 @@ export default function Heatmap({ onLogout, onNav }) {
   const [incidentType, setIncidentType] = useState("flood");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
-  const [userLocation, setUserLocation] = useState([17.385044, 78.486671]); // fallback
+  const [userLocation, setUserLocation] = useState([17.385044, 78.486671]);
 
-  // Get token and config for API calls
+  // NEW: State for incident duration
+  const [duration, setDuration] = useState(7200); // Default to 2 hours (in seconds)
+
   const token = localStorage.getItem("accessToken");
   const config = {
     headers: { Authorization: `Bearer ${token}` },
   };
 
-  // Fetch heatmap data
   const fetchPoints = async () => {
     if (!token) {
       setError("Failed to load heatmap data, please login.");
@@ -91,20 +92,15 @@ export default function Heatmap({ onLogout, onNav }) {
       setPoints(res.data);
     } catch (err) {
       console.error("Error fetching heatmap data:", err);
-      if (err.response && err.response.status === 401) {
-        setError("Session expired. Please login again.");
-      } else {
-        setError("Failed to load heatmap data.");
-      }
+      setError(err.response?.status === 401 ? "Session expired. Please login again." : "Failed to load heatmap data.");
     }
     setLoading(false);
   };
 
-  // Fetch heatmap points only once on mount
   useEffect(() => {
     fetchPoints();
   }, []);
-
+  
   // Live update userLocation with watchPosition
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -133,10 +129,6 @@ export default function Heatmap({ onLogout, onNav }) {
       setError("Select a point on the map first!");
       return;
     }
-    if (!token) {
-      setError("You must be logged in to add an incident.");
-      return;
-    }
     try {
       await axios.post(
         "http://127.0.0.1:8000/api/heatmap-data/",
@@ -145,16 +137,29 @@ export default function Heatmap({ onLogout, onNav }) {
           lng: parseFloat(lng),
           incident_type: incidentType,
           description,
+          duration: parseInt(duration, 10), // Send duration to backend
         },
         config
       );
       setLat("");
       setLng("");
       setDescription("");
-      fetchPoints();
+      fetchPoints(); // Refetch points to show the new one
     } catch (err) {
       console.error("Error adding point:", err);
-      setError("Failed to add point.");
+      setError("Failed to add point. Please try again.");
+    }
+  };
+  
+  // NEW: Function to handle incident deletion
+  const handleDelete = async (incidentId) => {
+    if (!window.confirm("Are you sure you want to delete this incident?")) return;
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/heatmap-data/${incidentId}/`, config);
+      fetchPoints(); // Refetch points to update the map
+    } catch (err) {
+      console.error("Error deleting incident:", err);
+      setError(err.response?.status === 403 ? "You can only delete your own incidents." : "Failed to delete incident.");
     }
   };
 
@@ -165,8 +170,6 @@ export default function Heatmap({ onLogout, onNav }) {
       <MenuBar onLogout={onLogout} onNav={onNav} />
       <div className="heatmap-container">
         <h1 className="heatmap-title">🗺️ Heatmap Visualization</h1>
-
-        {/* Add Incident Form */}
         <form className="add-point-form" onSubmit={submitPoint}>
           <input type="text" placeholder="Latitude" value={lat} readOnly />
           <input type="text" placeholder="Longitude" value={lng} readOnly />
@@ -177,53 +180,42 @@ export default function Heatmap({ onLogout, onNav }) {
               </option>
             ))}
           </select>
-          <input
-            type="text"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <button type="submit" disabled={!lat || !lng}>
-            Add Incident
-          </button>
+          {/* Duration selection dropdown */}
+          <select value={duration} onChange={(e) => setDuration(parseInt(e.target.value, 10))}>
+            <option value="3600">Keep for 1 Hour</option>
+            <option value="7200">Keep for 2 Hours</option>
+            <option value="21600">Keep for 6 Hours</option>
+            <option value="86400">Keep for 24 Hours</option>
+          </select>
+          <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <button type="submit" disabled={!lat || !lng}>Add Incident</button>
           {error && <p className="error">{error}</p>}
         </form>
 
-        {/* Map */}
-        <MapContainer
-          center={userLocation}
-          zoom={13}
-          scrollWheelZoom={true}
-          style={{ height: "500px", width: "100%" }}
-        >
-          <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
+        <MapContainer center={userLocation} zoom={13} scrollWheelZoom={true} style={{ height: "500px", width: "100%" }}>
+          <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <HeatmapLayer points={points} />
           <ClickHandler setLat={setLat} setLng={setLng} />
           <RecenterMap latlng={userLocation} />
+          <Marker position={userLocation}><Popup>You are here</Popup></Marker>
 
-          {/* User location */}
-          <Marker position={userLocation}>
-            <Popup>You are here</Popup>
-          </Marker>
-
-          {/* Existing incidents */}
-          {points.map((p, idx) => (
-            <Marker
-              key={idx}
-              position={[p.lat, p.lng]}
-              icon={L.divIcon({
-                className: "custom-marker",
-                html: `<div style="background-color:${INCIDENT_COLORS[p.incident_type] || "black"}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white;"></div>`,
-              })}
-            >
+          {/* Updated Marker mapping to include new details in Popup */}
+          {points.map((p) => (
+            <Marker key={p.id} position={[p.lat, p.lng]} icon={L.divIcon({ className: "custom-marker", html: `<div style="background-color:${INCIDENT_COLORS[p.incident_type] || "black"}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white;"></div>` })}>
               <Popup>
-                <b>{p.incident_type}</b>
-                <br />
-                {p.description || "No description"}
+                <div className="incident-popup">
+                  <strong>{p.incident_type.charAt(0).toUpperCase() + p.incident_type.slice(1)}</strong>
+                  <p>{p.description || "No description"}</p>
+                  <hr/>
+                  <small>
+                    Reported by: <strong>{p.username}</strong>
+                    <br />
+                    On: {new Date(p.created_at).toLocaleString()}
+                  </small>
+                  <button className="delete-button" onClick={() => handleDelete(p.id)}>
+                    Delete Incident
+                  </button>
+                </div>
               </Popup>
             </Marker>
           ))}

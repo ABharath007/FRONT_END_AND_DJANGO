@@ -50,7 +50,7 @@ class HeatmapPoint(models.Model):
     ]
 
     # MODIFIED: Link to the user who created the incident
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='heatmap_points')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     
     lat = models.FloatField()
     lng = models.FloatField()
