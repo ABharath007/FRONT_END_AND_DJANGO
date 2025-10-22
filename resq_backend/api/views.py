@@ -85,7 +85,7 @@ class HeatmapDataListCreateView(generics.ListCreateAPIView):
         """
         Set the user and calculate the expiration time upon creation.
         """
-        duration_seconds = serializer.validated_data.get('duration')
+        duration_seconds = self.request.data.get("duration", 60)
         expires_at = timezone.now() + timedelta(seconds=duration_seconds)
         serializer.save(user=self.request.user, expires_at=expires_at)
 

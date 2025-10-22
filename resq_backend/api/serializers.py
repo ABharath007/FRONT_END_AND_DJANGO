@@ -77,18 +77,16 @@ class ContactSerializer(serializers.ModelSerializer):
 
 # ---------- HEATMAP POINT SERIALIZER ----------
 class HeatmapPointSerializer(serializers.ModelSerializer):
-    # This field is used to SHOW the username in GET requests (read-only)
     username = serializers.CharField(source='user.username', read_only=True)
-    # This field is used to ACCEPT the duration in POST requests (write-only)
     duration = serializers.IntegerField(write_only=True, required=True)
 
     class Meta:
         model = HeatmapPoint
-        # MODIFIED: 'user' and 'duration' have been removed from this list to fix the errors.
         fields = [
-            'id', 'lat', 'lng', 'incident_type', 'description', 
-            'username', 'created_at', 'expires_at','duration'
+            'id', 'lat', 'lng', 'incident_type', 'description',
+            'username', 'created_at', 'expires_at', 'duration'
         ]
+        read_only_fields = ['created_at', 'expires_at', 'username']
 
 
 # ---------- USER CONTACT SERIALIZER ----------

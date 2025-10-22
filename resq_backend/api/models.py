@@ -60,7 +60,8 @@ class HeatmapPoint(models.Model):
 
     # NEW: Timestamps for creation and expiration
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField() # This will be set in the view
+    expires_at = models.DateTimeField(null=True, blank=True)
+    duration = models.IntegerField(default=60)
 
     def __str__(self):
         return f"{self.get_incident_type_display()} by {self.user.username} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"
