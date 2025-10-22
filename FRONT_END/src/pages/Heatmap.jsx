@@ -89,7 +89,7 @@ export default function Heatmap({ onLogout, onNav }) {
       return;
     }
     try {
-      const res = await axios.get("${API_URL}/api/heatmap-data/", config);
+      const res = await axios.get(`${API_URL}/api/heatmap-data/`, config);
       setPoints(res.data);
     } catch (err) {
       console.error("Error fetching heatmap data:", err);

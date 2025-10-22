@@ -3,6 +3,7 @@ import axios from "axios";
 import "../style/Messages.css";
 import MenuBar from "./MenuBar";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -22,7 +23,7 @@ const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
       setLoading(true);
       setError("");
       try {
-        const response = await axios.get("/api/messages/", {
+        const response = await axios.get(`${API_URL}/api/messages/`, {
           headers: { Authorization: `Bearer ${userToken}` },
         });
         if (Array.isArray(response.data)) {
@@ -48,7 +49,7 @@ const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
     }
     const fetchUsers = async () => {
   try {
-    const response = await axios.get("/api/contacts/", {
+    const response = await axios.get(`${API_URL}/api/contacts/`, {
       headers: { Authorization: `Bearer ${userToken}` },
     });
     // Make sure we get an array
@@ -75,7 +76,7 @@ const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
     }
     try {
       const response = await axios.post(
-        "/api/messages/",
+        `${API_URL}/api/messages/`,
         { text: newMessage, receiver: receiverId },
         { headers: { Authorization: `Bearer ${userToken}` } }
       );

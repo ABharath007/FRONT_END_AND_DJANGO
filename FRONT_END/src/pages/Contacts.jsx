@@ -11,7 +11,7 @@ const getFreshAccessToken = async () => {
   if (!refreshToken) return null;
 
   try {
-    const response = await axios.post(`${API_URL}/token/refresh/`, {
+    const response = await axios.post(`${API_URL}/api/token/refresh/`, {
       refresh: refreshToken,
     });
     const { access } = response.data;
@@ -54,7 +54,7 @@ export default function Contacts({ onLogout, onNav }) {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest("get", `${API_URL}/contacts/`);
+      const response = await apiRequest("get", `${API_URL}/api/contacts/`);
       setContacts(response.data);
     } catch (err) {
       console.error("Failed to fetch contacts:", err);
@@ -78,7 +78,7 @@ export default function Contacts({ onLogout, onNav }) {
     e.preventDefault();
     setAdding(true);
     try {
-      await apiRequest("post", `${API_URL}/contacts/`, formData);
+      await apiRequest("post", `${API_URL}/api/contacts/`, formData);
       alert("✅ Contact added successfully!");
       setFormData({ name: "", phone_number: "", email: "" });
       fetchContacts();
@@ -94,7 +94,7 @@ export default function Contacts({ onLogout, onNav }) {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this contact?")) return;
     try {
-      await apiRequest("delete", `${API_URL}/contacts/${id}/`);
+      await apiRequest("delete", `${API_URL}/api/contacts/${id}/`);
       alert("✅ Contact deleted successfully!");
       setContacts((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
