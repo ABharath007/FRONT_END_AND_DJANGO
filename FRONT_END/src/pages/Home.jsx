@@ -5,7 +5,7 @@ import { FaBell, FaMapMarkerAlt, FaPhoneAlt, FaUserFriends } from "react-icons/f
 import axios from "axios";
 import profilePhoto from "../components/Profile_photo.webp";
 
-const API_URL = "http://127.0.0.1:8000/api"; // include /api prefix
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Home({ username, onLogout, onNav }) {
   const [dashboardData, setDashboardData] = useState(null);
@@ -18,7 +18,7 @@ export default function Home({ username, onLogout, onNav }) {
       const token = localStorage.getItem("accessToken");
       if (!token) throw new Error("User not authenticated");
 
-      const response = await axios.get(`${API_URL}/dashboard/`, {
+      const response = await axios.get(`${API_URL}/api/dashboard/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDashboardData(response.data);

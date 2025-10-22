@@ -3,7 +3,7 @@ import MenuBar from "./MenuBar";
 import "../style/Contacts.css";
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Function to refresh access token
 const getFreshAccessToken = async () => {

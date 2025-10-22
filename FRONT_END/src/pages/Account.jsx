@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../style/Account.css";
 import MenuBar from "./MenuBar";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Account = ({ onLogout, onNav }) => {
   const [user, setUser] = useState({

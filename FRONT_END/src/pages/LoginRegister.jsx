@@ -3,7 +3,7 @@ import axios from "axios";
 import "../style/LoginRegister.css";
 
 // Define the base URL for your Django API
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function LoginRegister({ initialMode = "login", onLogin, onBack }) {
   const [isLoginActive, setIsLoginActive] = useState(initialMode === "login");

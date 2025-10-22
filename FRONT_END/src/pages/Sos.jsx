@@ -3,7 +3,7 @@ import MenuBar from "./MenuBar";
 import "../style/Sos.css";
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:8000/api"; // include /api prefix
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Sos({ onLogout, onNav, onUpdateDashboard }) {
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ export default function Sos({ onLogout, onNav, onUpdateDashboard }) {
       if (!token) throw new Error("User not authenticated");
 
       const response = await axios.post(
-        `${API_URL}/sos/`,
+        `${API_URL}/api/sos/`,
         { type: "General Emergency" },
         { headers: { Authorization: `Bearer ${token}` } }
       );

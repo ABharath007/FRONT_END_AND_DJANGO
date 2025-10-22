@@ -22,6 +22,7 @@ const INCIDENT_COLORS = {
   roadblock: "gray",
   other: "green",
 };
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Heatmap layer component
 function HeatmapLayer({ points }) {
@@ -88,7 +89,7 @@ export default function Heatmap({ onLogout, onNav }) {
       return;
     }
     try {
-      const res = await axios.get("http://127.0.0.1:8000/api/heatmap-data/", config);
+      const res = await axios.get("${API_URL}/api/heatmap-data/", config);
       setPoints(res.data);
     } catch (err) {
       console.error("Error fetching heatmap data:", err);
@@ -131,7 +132,7 @@ export default function Heatmap({ onLogout, onNav }) {
     }
     try {
       await axios.post(
-        "http://127.0.0.1:8000/api/heatmap-data/",
+        `${API_URL}/api/heatmap-data/`,
         {
           lat: parseFloat(lat),
           lng: parseFloat(lng),
@@ -155,7 +156,7 @@ export default function Heatmap({ onLogout, onNav }) {
   const handleDelete = async (incidentId) => {
     if (!window.confirm("Are you sure you want to delete this incident?")) return;
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/heatmap-data/${incidentId}/`, config);
+      await axios.delete(`${API_URL}/api/heatmap-data/${incidentId}/`, config);
       fetchPoints(); // Refetch points to update the map
     } catch (err) {
       console.error("Error deleting incident:", err);
