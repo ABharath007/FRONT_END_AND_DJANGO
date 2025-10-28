@@ -76,12 +76,14 @@ class UserContact(models.Model):
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages", null=True, blank=True)
     text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"From {self.sender.username} to {self.receiver.username}: {self.text[:30]}"
+        if self.receiver:
+            return f"From {self.sender.username} to {self.receiver.username}: {self.text[:30]}"
+        return f"From {self.sender.username} (Global): {self.text[:30]}"
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     phone = models.CharField(max_length=20, blank=True)

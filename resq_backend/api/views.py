@@ -138,6 +138,23 @@ class MessageListCreate(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
 
+class MessageDelete(generics.DestroyAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Users can only delete their own messages
+        return Message.objects.filter(sender=self.request.user)
+
+# ---------- ALL USERS FOR MESSAGING ----------
+class AllUsersView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Return all users except the current user
+        return User.objects.exclude(id=self.request.user.id).order_by('username')
+
 # ---------- USER INFO ----------
 class MeView(APIView):
     permission_classes = [IsAuthenticated]

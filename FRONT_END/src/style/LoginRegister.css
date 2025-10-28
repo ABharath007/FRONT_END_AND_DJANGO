@@ -14,75 +14,241 @@ div {
   box-sizing: border-box;
 }
 
-/* --- Main Page Layout --- */
+/* --- Main Page Layout - Split Screen --- */
 .login-bg {
   min-height: 100vh;
   width: 100vw;
-  background: rgb(255, 255, 255) url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
   display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
   overflow: hidden;
 }
 
+/* Left side - Blue background with logo */
 .login-bg::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(135deg, #182848 0%, #3b5998 50%, #5c7cba 100%);
+  z-index: 0;
+  animation: gradientFlow 10s ease-in-out infinite;
 }
 
-/* --- Back Button (Icon Only) --- */
+@keyframes gradientFlow {
+  0%, 100% {
+    background: linear-gradient(135deg, #182848 0%, #3b5998 50%, #5c7cba 100%);
+  }
+  50% {
+    background: linear-gradient(135deg, #3b5998 0%, #5c7cba 50%, #182848 100%);
+  }
+}
+
+/* --- Branding Section on Left Side --- */
+.branding-section {
+  position: absolute;
+  top: 50%;
+  left: 27.5%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  text-align: center;
+  animation: brandingFadeIn 1s ease-out;
+}
+
+@keyframes brandingFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Logo emoji with floating animation */
+.logo-container {
+  margin-bottom: 20px;
+}
+
+.logo-emoji {
+  font-size: 100px;
+  display: inline-block;
+  animation: logoFloat 3s ease-in-out infinite, logoPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 10px 30px rgba(255, 211, 105, 0.3));
+  }
+  50% {
+    opacity: 0.9;
+    filter: drop-shadow(0 15px 40px rgba(255, 211, 105, 0.5));
+  }
+}
+
+/* ResQ brand name with smooth typing animation */
+.brand-name {
+  font-size: 72px;
+  font-weight: 900;
+  color: white;
+  margin: 0;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  animation: typingSmooth 1.5s ease-out 0.5s forwards;
+  display: inline-block;
+}
+
+@keyframes typingSmooth {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 280px;
+    opacity: 1;
+  }
+}
+
+/* Tagline with slide-in animation */
+.brand-tagline {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 15px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0;
+  animation: slideInTagline 0.8s ease-out 2s forwards;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideInTagline {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Back Button --- */
 .back-button {
   position: absolute;
   top: 2rem;
   left: 2rem;
   z-index: 99;
-  background: transparent;
+  background: none !important;
   border: none;
-  padding: 5px;
+  padding: 0;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  animation: slideInLeft 0.6s ease-out;
+  outline: none;
+  box-shadow: none !important;
+}
+
+.back-button:hover,
+.back-button:focus,
+.back-button:active {
+  background: none !important;
+  outline: none;
+  box-shadow: none !important;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .back-button i {
   font-size: 1.8rem;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s ease-in-out;
+  color: white;
+  background: transparent;
 }
 
-.back-button:hover i {
-  color: #57AAB4;
-  transform: scale(1.15);
-}
-
-/* --- Main Form Container --- */
+/* --- Main Form Container - Right Side --- */
 .main-box {
-  width: 400px;
-  padding: 20px 0 30px 0;
-  position: relative;
-  margin: 6% auto;
-  background: rgba(27, 27, 27, 0.2);
-  backdrop-filter: blur(15px);
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  width: 45%;
+  min-height: 100vh;
+  padding: 80px 60px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: white;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  justify-content: center;
+  overflow-y: auto;
   z-index: 2;
+  animation: slideInRight 0.8s ease-out;
+  box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Title */
+.form-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #182848;
+  margin: 0 0 30px 0;
+  text-align: center;
+  animation: titleSlideIn 0.6s ease-out 0.2s both;
+}
+
+@keyframes titleSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* --- Form Box (Parent for Login/Register Forms) --- */
 .form-box {
   width: 100%;
-  min-height: 380px; /* KEY FIX: Gives space for the forms */
-  position: relative;   /* KEY FIX: Allows absolute positioning of children */
+  max-width: 400px;
+  min-height: 450px;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,41 +265,69 @@ div {
 
 /* --- Login/Register Toggle Buttons --- */
 .button-box {
-  width: 280px;
-  margin: 25px auto;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 30px;
   position: relative;
-  border-radius: 30px;
+  border-radius: 12px;
   display: flex;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f5f5f5;
+  padding: 4px;
+  animation: slideDown 0.5s ease-out 0.2s both;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 #btn {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 140px;
-  height: 100%;
-  background: linear-gradient(to right, #57aab4, #03a9f4);
-  border-radius: 30px;
-  transition: 0.5s;
-  box-shadow: 0 0 10px rgba(87, 170, 180, 0.6);
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: linear-gradient(135deg, #3b5998, #5c7cba);
+  border-radius: 8px;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 2px 8px rgba(59, 89, 152, 0.3);
 }
 
 .toggle-btn {
-  padding: 10px 0;
+  padding: 12px 0;
   flex: 1;
   text-align: center;
   cursor: pointer;
   background: transparent;
   border: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(234, 234, 235, 0.8);
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
   outline: none;
   position: relative;
-  transition: 0.5s;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+/* Active button text should be white */
+.toggle-btn.active {
+  color: white;
+}
+
+/* Hover effect - glow instead of grey */
+.toggle-btn:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 8px rgba(59, 89, 152, 0.4));
+}
+
+.toggle-btn.active:hover {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
 }
 
 /* --- Floating Label Inputs --- */
@@ -142,58 +336,102 @@ div {
   max-width: 300px;
   position: absolute;   /* KEY FIX: Allows forms to slide correctly */
   top: 110px;           /* Position forms below the toggle buttons */
-  transition: left 0.5s ease-in-out; /* Animate the slide */
+  transition: left 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease; /* Animate the slide */
+  animation: formFadeIn 0.6s ease-out 0.4s both;
+}
+
+@keyframes formFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .input-container {
   position: relative;
   margin-bottom: 30px; /* Increased space for better layout */
+  animation: inputSlideIn 0.5s ease-out both;
+}
+
+.input-container:nth-child(1) {
+  animation-delay: 0.5s;
+}
+
+.input-container:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.input-container:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+@keyframes inputSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .input-field {
   width: 100%;
   padding: 10px 5px;
   border: none;
-  border-bottom: 2px solid rgba(234, 234, 235, 0.5);
+  border-bottom: 2px solid #ddd;
   outline: none;
   background: transparent;
-  color: rgb(234, 234, 235);
+  color: #333;
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.input-field:hover {
+  border-bottom-color: #3b5998;
 }
 
 .input-label {
   position: absolute;
   top: 10px;
   left: 5px;
-  color: rgba(234, 234, 235, 0.7);
-  font-size: 16px;
+  color: #888;
+  font-size: 15px;
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* The "UPWARD" animation for the label */
 .input-field:focus + .input-label,
 .input-field:valid + .input-label {
-  top: -20px;
-  font-size: 14px;
-  color: #57aab4;
-  padding: 0 5px;
-  background: none;
+  top: -18px;
+  font-size: 12px;
+  color: #3b5998;
+  font-weight: 600;
+  padding: 0 4px;
+  background: white;
+  transform: translateY(-2px);
 }
 
 .input-field:focus {
-  border-bottom-color: #57aab4;
+  border-bottom-color: #3b5998;
+  border-bottom-width: 2.5px;
+  transform: scale(1.01);
 }
 
 /* --- Submit Button --- */
 .submit-btn {
   width: 80%;
-  padding: 12px 30px;
+  padding: 14px 30px;
+   position: relative;
+  transition: all 0.3s ease;
   cursor: pointer;
   display: block;
   margin: 35px auto 0 auto;
-  background: linear-gradient(to right, #03a9f4, #57aab4);
+  background: #3b5998;
   border: 0;
   outline: none;
   border-radius: 30px;
@@ -202,21 +440,132 @@ div {
   font-weight: bold;
   font-size: 17px;
   letter-spacing: 1px;
-  box-shadow: 0 5px 20px rgba(0, 169, 244, 0.4);
+  box-shadow: 0 8px 20px rgba(131, 137, 149, 0.3);
   transition: all 0.3s ease;
+  animation: buttonFadeIn 0.6s ease-out 0.8s both;
 }
 
+@keyframes buttonFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pop-up effect on hover */
 .submit-btn:hover {
-  background: linear-gradient(to right, #57aab4, #03a9f4);
-  box-shadow: 0 8px 25px rgba(3, 169, 244, 0.6);
-  transform: translateY(-2px);
+  background: #173b88;
+  box-shadow: 0 8px 25px rgba(59, 89, 152, 0.4);
+  transform: translateY(-5px) scale(1.02);
+}
+
+/* Click effect */
+.submit-btn:active {
+  background: #3b5998;
+  transform: translateY(-2px) scale(0.98);
+  box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
 }
 
 /* --- Helper Classes --- */
 .error-message {
-  color: #ff6b6b;
+  color: #e63946;
   position: absolute;
   top: 80px; /* Position it below the toggle buttons */
   font-size: 14px;
   text-align: center;
+  background: rgba(230, 57, 70, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border-left: 3px solid #e63946;
+  animation: errorShake 0.5s ease-out, errorFadeIn 0.3s ease-out;
+  width: 85%;
+  max-width: 280px;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+@keyframes errorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 968px) {
+  .login-bg::before {
+    width: 100%;
+    height: 40%;
+  }
+  
+  .branding-section {
+    top: 20%;
+    left: 50%;
+  }
+  
+  .logo-emoji {
+    font-size: 70px;
+  }
+  
+  .brand-name {
+    font-size: 56px;
+  }
+  
+  .brand-tagline {
+    font-size: 14px;
+  }
+  
+  .main-box {
+    width: 100%;
+    min-height: 60%;
+    top: auto;
+    bottom: 0;
+    padding: 50px 40px;
+    border-radius: 30px 30px 0 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-box {
+    padding: 40px 25px;
+  }
+  
+  .button-box {
+    width: 100%;
+  }
+  
+  .back-button {
+    left: 1rem;
+    top: 1rem;
+  }
+  
+  .back-button i {
+    font-size: 1.5rem;
+  }
+  
+  .logo-emoji {
+    font-size: 50px;
+  }
+  
+  .brand-name {
+    font-size: 42px;
+    letter-spacing: 4px;
+  }
+  
+  .brand-tagline {
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
 }

@@ -70,14 +70,32 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
         <i className="fas fa-chevron-left"></i>
       </button>
 
+      {/* Left side branding */}
+      <div className="branding-section">
+        <div className="logo-container">
+          <span className="logo-emoji">🚨</span>
+        </div>
+        <h1 className="brand-name">ResQ</h1>
+        <p className="brand-tagline">Emergency Response Platform</p>
+      </div>
+
       <div className="main-box">
+        <h2 className="form-title">Welcome Back</h2>
         <div className="form-box">
           <div className="button-box">
-            <div id="btn" style={{ left: isLoginActive ? "0" : "140px" }}></div>
-            <button type="button" className="toggle-btn" onClick={() => toggleForms(true)}>
+            <div id="btn" style={{ left: isLoginActive ? "4px" : "calc(50% + 0px)" }}></div>
+            <button 
+              type="button" 
+              className={`toggle-btn ${isLoginActive ? 'active' : ''}`}
+              onClick={() => toggleForms(true)}
+            >
               Log in
             </button>
-            <button type="button" className="toggle-btn" onClick={() => toggleForms(false)}>
+            <button 
+              type="button" 
+              className={`toggle-btn ${!isLoginActive ? 'active' : ''}`}
+              onClick={() => toggleForms(false)}
+            >
               Register
             </button>
           </div>
@@ -86,7 +104,7 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
 
           <form
             className="input-group"
-            style={{ left: isLoginActive ? "10%" : "-100%" }} // <-- CHANGED FROM 5%
+            style={{ left: isLoginActive ? "10%" : "-100%" }}
             onSubmit={submitLogin}
           >
             <div className="input-container">
@@ -116,7 +134,7 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
 
           <form
             className="input-group"
-            style={{ left: isLoginActive ? "100%" : "10%" }} // <-- CHANGED FROM 5%
+            style={{ left: isLoginActive ? "100%" : "10%" }}
             onSubmit={submitRegister}
           >
             <div className="input-container">

@@ -29,7 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['name', 'email', 'profile']
+        fields = ['id', 'username', 'name', 'email', 'profile']
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
@@ -101,7 +101,9 @@ class UserContactSerializer(serializers.ModelSerializer):
 # ---------- MESSAGE SERIALIZER ----------
 class MessageSerializer(serializers.ModelSerializer):
     sender_username = serializers.CharField(source='sender.username', read_only=True)
+    receiver_username = serializers.CharField(source='receiver.username', read_only=True, allow_null=True)
 
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'sender_username', 'text', 'timestamp']  # remove receiver if not needed
+        fields = ['id', 'sender', 'sender_username', 'receiver', 'receiver_username', 'text', 'timestamp']
+        read_only_fields = ['sender', 'sender_username', 'timestamp']
