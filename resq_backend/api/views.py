@@ -10,6 +10,7 @@ from .serializers import (
     UserContactSerializer,
     MessageSerializer,
     ContactSerializer,
+    SOSAlertSerializer,
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
@@ -23,6 +24,7 @@ from .models import (
     HeatmapPoint,
     UserContact,
     Message,
+    SOSAlert,
 )
 
 # ---------- USER REGISTRATION ----------
@@ -176,6 +178,9 @@ class SOSCreateView(APIView):
 
     def post(self, request):
         sos_type = request.data.get("type", "General Emergency")
+        selected_contacts = request.data.get("contacts", [])
+        latitude = request.data.get("latitude")
+        longitude = request.data.get("longitude")
 
         sos = SOSReport.objects.create(
             user=request.user,
@@ -183,12 +188,92 @@ class SOSCreateView(APIView):
             status="Pending"
         )
 
+        # Send SOS alerts to selected contacts
+        alerts_sent = 0
+        for contact_id in selected_contacts:
+            try:
+                receiver = User.objects.get(id=contact_id)
+                message = f"{request.user.username} sent an SOS alert: {sos_type}"
+                SOSAlert.objects.create(
+                    sender=request.user,
+                    receiver=receiver,
+                    message=message,
+                    latitude=latitude,
+                    longitude=longitude,
+                    sos_type=sos_type
+                )
+                alerts_sent += 1
+            except User.DoesNotExist:
+                continue
+
         return Response(
             {
-                "message": "SOS sent successfully!",
+                "message": f"SOS sent successfully to {alerts_sent} contact(s)!",
                 "sos_calls": SOSReport.objects.filter(user=request.user).count(),
                 "sos_id": sos.id,
                 "sos_type": sos.type,
+                "alerts_sent": alerts_sent,
             },
             status=status.HTTP_201_CREATED,
         )
+
+# ---------- SOS ALERTS ----------
+class SOSAlertListView(generics.ListAPIView):
+    serializer_class = SOSAlertSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SOSAlert.objects.filter(receiver=self.request.user).order_by('-created_at')
+
+class SOSAlertMarkReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            alert = SOSAlert.objects.get(pk=pk, receiver=request.user)
+            alert.is_read = True
+            alert.save()
+            return Response({"message": "Alert marked as read"}, status=status.HTTP_200_OK)
+        except SOSAlert.DoesNotExist:
+            return Response({"error": "Alert not found"}, status=status.HTTP_404_NOT_FOUND)
+
+# ---------- USER SEARCH ----------
+class UserSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.query_params.get('q', '')
+        if not query:
+            return Response([], status=status.HTTP_200_OK)
+        
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)[:10]
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+# ---------- USER CONTACT MANAGEMENT ----------
+class UserContactCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        contact_id = request.data.get('contact_id')
+        try:
+            contact_user = User.objects.get(id=contact_id)
+            # Check if already exists
+            if UserContact.objects.filter(user=request.user, contact=contact_user).exists():
+                return Response({"error": "Contact already added"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            UserContact.objects.create(user=request.user, contact=contact_user)
+            return Response({"message": "Contact added successfully"}, status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class UserContactDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            user_contact = UserContact.objects.get(pk=pk, user=request.user)
+            user_contact.delete()
+            return Response({"message": "Contact removed successfully"}, status=status.HTTP_200_OK)
+        except UserContact.DoesNotExist:
+            return Response({"error": "Contact not found"}, status=status.HTTP_404_NOT_FOUND)

@@ -1,19 +1,17 @@
 .sos-container {
-  max-width: 500px;
+  max-width: 700px;
   margin: 40px auto;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   padding: 36px 32px 28px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .sos-title {
   color: #ee3b3b;
   letter-spacing: 1px;
   margin-bottom: 16px;
+  text-align: center;
 }
 
 .sos-description {
@@ -21,36 +19,166 @@
   font-size: 1rem;
   text-align: center;
   margin-bottom: 32px;
-  width: 95%;
 }
 
+/* Contact Selection */
+.contact-selection {
+  background: #f0fdf4;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.contact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.contact-header h3 {
+  color: #15803d;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.select-all-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.select-all-btn:hover {
+  background: #059669;
+}
+
+.no-contacts {
+  text-align: center;
+  padding: 20px;
+}
+
+.no-contacts p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.nav-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.nav-btn:hover {
+  background: #059669;
+}
+
+.contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.contact-card {
+  background: #fff;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-card:hover {
+  border-color: #10b981;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.contact-card.selected {
+  background: #d1fae5;
+  border-color: #10b981;
+  box-shadow: 0 4px 8px rgba(16,185,129,0.2);
+}
+
+.contact-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #10b981;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #10b981;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-icon {
+  font-size: 1.5rem;
+}
+
+.contact-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* SOS Button */
 .sos-button {
   background: #ee3b3b;
   color: #fff;
   border: none;
   border-radius: 32px;
-  padding: 16px 46px;
-  font-size: 1.2rem;
-  box-shadow: 0 4px 18px rgba(238,59,59,0.18);
+  padding: 18px 46px;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 18px rgba(238,59,59,0.3);
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
-  margin-bottom: 38px;
+  margin: 20px auto;
   outline: none;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 14px;
+  width: fit-content;
 }
 
-.sos-button:hover {
+.sos-button:hover:not(:disabled) {
   background: #d13333;
   transform: translateY(-2px) scale(1.05);
 }
 
-.sos-button-icon {
-  font-size: 1.5rem;
+.sos-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
 }
 
+.sos-button-icon {
+  font-size: 1.8rem;
+}
+
+/* Info Section */
 .sos-info {
   background: #fff3f3;
   border-radius: 8px;
@@ -62,7 +190,7 @@
 .sos-info h3 {
   color: #b22020;
   font-size: 1.05rem;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .sos-info ul {
@@ -72,20 +200,7 @@
 }
 
 .sos-info li {
-  margin-bottom: 4px;
-  font-size: 0.98rem;
-}
-
-.back-button {
-  margin-top: 20px;
-  background: #666;
-  color: white;
-  padding: 10px 28px;
-  border:none;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.back-button:hover {
-  background: #444;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }

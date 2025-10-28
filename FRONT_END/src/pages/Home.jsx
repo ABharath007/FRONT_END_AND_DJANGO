@@ -47,7 +47,7 @@ export default function Home({ username, onLogout, onNav }) {
             <input type="text" placeholder="Search..." className="search-bar" />
             <div className="user-profile">
               <img src={profilePhoto} alt="User Avatar" />
-              <span>{username}</span>
+              <button className="username-btn" onClick={() => onNav("account")}>{username}</button>
             </div>
           </div>
         </div>

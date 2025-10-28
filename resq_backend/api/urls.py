@@ -12,6 +12,11 @@ from .views import (
     AllUsersView,
     MeView,
     SOSCreateView,
+    SOSAlertListView,
+    SOSAlertMarkReadView,
+    UserSearchView,
+    UserContactCreateView,
+    UserContactDeleteView,
 )
 
 urlpatterns = [
@@ -39,4 +44,13 @@ urlpatterns = [
 
     # SOS
     path('sos/', SOSCreateView.as_view(), name='send-sos'),
+    path('sos-alerts/', SOSAlertListView.as_view(), name='sos-alerts'),
+    path('sos-alerts/<int:pk>/mark-read/', SOSAlertMarkReadView.as_view(), name='sos-alert-mark-read'),
+
+    # User search
+    path('search-users/', UserSearchView.as_view(), name='search-users'),
+
+    # User contact management
+    path('user-contacts/add/', UserContactCreateView.as_view(), name='user-contact-add'),
+    path('user-contacts/<int:pk>/delete/', UserContactDeleteView.as_view(), name='user-contact-delete'),
 ]

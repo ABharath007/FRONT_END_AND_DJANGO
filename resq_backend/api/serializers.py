@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import SOSReport, LocationShare, Alert, Contact, HeatmapPoint, UserContact, Message,UserProfile
+from .models import SOSReport, LocationShare, Alert, Contact, HeatmapPoint, UserContact, Message, UserProfile, SOSAlert
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,3 +107,13 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = ['id', 'sender', 'sender_username', 'receiver', 'receiver_username', 'text', 'timestamp']
         read_only_fields = ['sender', 'sender_username', 'timestamp']
+
+# ---------- SOS ALERT SERIALIZER ----------
+class SOSAlertSerializer(serializers.ModelSerializer):
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
+    receiver_username = serializers.CharField(source='receiver.username', read_only=True)
+
+    class Meta:
+        model = SOSAlert
+        fields = ['id', 'sender', 'sender_username', 'receiver', 'receiver_username', 'message', 'latitude', 'longitude', 'created_at', 'is_read', 'sos_type']
+        read_only_fields = ['sender', 'sender_username', 'created_at']

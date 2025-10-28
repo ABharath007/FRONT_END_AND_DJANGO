@@ -20,6 +20,25 @@
   font-size: 0.9rem;
 }
 
+.username-btn {
+  background: transparent;
+  color: #326273;
+  border: none;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 
+    color 0.3s ease,
+    transform 0.3s ease;
+  display: inline-block;
+}
+
+.username-btn:hover {
+  color: #5c9ead;
+  transform: scale(1.15) translateY(-2px);
+}
+
 .search-profile-container {
   display: flex;
   align-items: center;

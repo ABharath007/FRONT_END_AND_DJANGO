@@ -91,4 +91,17 @@ class UserProfile(models.Model):
     address = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.user.username} Profile"    
+        return f"{self.user.username} Profile"
+
+class SOSAlert(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_sos_alerts')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_sos_alerts')
+    message = models.TextField()
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    sos_type = models.CharField(max_length=100, default='General Emergency')
+
+    def __str__(self):
+        return f"SOS from {self.sender.username} to {self.receiver.username} at {self.created_at}"    

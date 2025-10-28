@@ -25,9 +25,14 @@ const getFreshAccessToken = async () => {
 
 export default function Contacts({ onLogout, onNav }) {
   const [contacts, setContacts] = useState([]);
+  const [userContacts, setUserContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ name: "", phone_number: "", email: "" });
   const [adding, setAdding] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [activeTab, setActiveTab] = useState("manual"); // "manual" or "users"
 
   // Helper: make API request with token, auto-refresh if expired
   const apiRequest = async (method, url, data = null) => {
@@ -54,8 +59,12 @@ export default function Contacts({ onLogout, onNav }) {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest("get", `${API_URL}/api/contacts/`);
-      setContacts(response.data);
+      const [contactsRes, userContactsRes] = await Promise.all([
+        apiRequest("get", `${API_URL}/api/contacts/`),
+        apiRequest("get", `${API_URL}/api/user-contacts/`)
+      ]);
+      setContacts(contactsRes.data);
+      setUserContacts(userContactsRes.data);
     } catch (err) {
       console.error("Failed to fetch contacts:", err);
       alert("❌ Could not load contacts.");
@@ -67,6 +76,52 @@ export default function Contacts({ onLogout, onNav }) {
   useEffect(() => {
     fetchContacts();
   }, []);
+
+  // Search users
+  const handleSearchUsers = async (query) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const response = await apiRequest("get", `${API_URL}/api/search-users/?q=${query}`);
+      setSearchResults(response.data);
+    } catch (err) {
+      console.error("Failed to search users:", err);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  // Add user contact
+  const handleAddUserContact = async (userId) => {
+    try {
+      await apiRequest("post", `${API_URL}/api/user-contacts/add/`, { contact_id: userId });
+      alert("✅ Contact added successfully!");
+      setSearchQuery("");
+      setSearchResults([]);
+      fetchContacts();
+    } catch (err) {
+      console.error("Failed to add user contact:", err);
+      alert(err.response?.data?.error || "❌ Failed to add contact.");
+    }
+  };
+
+  // Delete user contact
+  const handleDeleteUserContact = async (id) => {
+    if (!window.confirm("Are you sure you want to remove this contact?")) return;
+    try {
+      await apiRequest("delete", `${API_URL}/api/user-contacts/${id}/delete/`);
+      alert("✅ Contact removed successfully!");
+      setUserContacts((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error("Failed to delete user contact:", err);
+      alert("❌ Failed to remove contact.");
+    }
+  };
 
   // Handle input changes
   const handleChange = (e) => {
@@ -112,64 +167,148 @@ export default function Contacts({ onLogout, onNav }) {
       <div className="contacts-container">
         <h2>My Contacts</h2>
 
-        {/* Add Contact Form */}
-        <form className="add-contact-form" onSubmit={handleAddContact}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="phone_number"
-            placeholder="Phone Number"
-            value={formData.phone_number}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email (optional)"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <button type="submit" disabled={adding}>
-            {adding ? "Adding..." : "Add Contact"}
+        {/* Tab Navigation */}
+        <div className="contact-tabs">
+          <button
+            className={`tab-btn ${activeTab === "manual" ? "active" : ""}`}
+            onClick={() => setActiveTab("manual")}
+          >
+            📝 Manual Contacts
           </button>
-        </form>
+          <button
+            className={`tab-btn ${activeTab === "users" ? "active" : ""}`}
+            onClick={() => setActiveTab("users")}
+          >
+            👥 User Contacts
+          </button>
+        </div>
 
-        {/* Contacts Table */}
-        {contacts.length === 0 ? (
-          <div className="contacts-empty">No contacts found.</div>
-        ) : (
-          <table className="contacts-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contacts.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.name}</td>
-                  <td>{c.phone_number}</td>
-                  <td>{c.email || "-"}</td>
-                  <td>
-                    <button className="delete-btn" onClick={() => handleDelete(c.id)}>
-                      Delete
+        {/* Manual Contacts Tab */}
+        {activeTab === "manual" && (
+          <>
+            {/* Add Contact Form */}
+            <form className="add-contact-form" onSubmit={handleAddContact}>
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="phone_number"
+                placeholder="Phone Number"
+                value={formData.phone_number}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email (optional)"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              <button type="submit" disabled={adding}>
+                {adding ? "Adding..." : "Add Contact"}
+              </button>
+            </form>
+
+            {/* Contacts Table */}
+            {contacts.length === 0 ? (
+              <div className="contacts-empty">No manual contacts found.</div>
+            ) : (
+              <table className="contacts-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contacts.map((c) => (
+                    <tr key={c.id}>
+                      <td>{c.name}</td>
+                      <td>{c.phone_number}</td>
+                      <td>{c.email || "-"}</td>
+                      <td>
+                        <button className="delete-btn" onClick={() => handleDelete(c.id)}>
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </>
+        )}
+
+        {/* User Contacts Tab */}
+        {activeTab === "users" && (
+          <>
+            {/* Search Users */}
+            <div className="user-search-section">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search users by username..."
+                value={searchQuery}
+                onChange={(e) => handleSearchUsers(e.target.value)}
+              />
+              {searching && <div className="search-loading">Searching...</div>}
+              
+              {/* Search Results */}
+              {searchResults.length > 0 && (
+                <div className="search-results">
+                  {searchResults.map((user) => (
+                    <div key={user.id} className="search-result-item">
+                      <div className="user-info">
+                        <span className="user-icon">👤</span>
+                        <span className="username">{user.username}</span>
+                        {user.email && <span className="user-email">({user.email})</span>}
+                      </div>
+                      <button
+                        className="add-user-btn"
+                        onClick={() => handleAddUserContact(user.id)}
+                      >
+                        + Add
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* User Contacts List */}
+            {userContacts.length === 0 ? (
+              <div className="contacts-empty">No user contacts found. Search and add users above.</div>
+            ) : (
+              <div className="user-contacts-grid">
+                {userContacts.map((uc) => (
+                  <div key={uc.id} className="user-contact-card">
+                    <div className="card-header">
+                      <span className="user-icon-large">👤</span>
+                      <div className="user-details">
+                        <h3>{uc.contact_username}</h3>
+                        <p className="contact-label">App User</p>
+                      </div>
+                    </div>
+                    <button
+                      className="remove-user-btn"
+                      onClick={() => handleDeleteUserContact(uc.id)}
+                    >
+                      Remove
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </>

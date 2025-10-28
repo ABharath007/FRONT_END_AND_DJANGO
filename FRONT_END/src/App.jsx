@@ -7,6 +7,8 @@ import Heatmap from "./pages/Heatmap";
 import Messages from "./pages/Messages";
 import Contacts from "./pages/Contacts"; 
 import Account from "./pages/Account";
+import Alerts from "./pages/Alerts";
+import Settings from "./pages/Settings";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -87,6 +89,18 @@ export default function App() {
               onLogout={handleLogout}
               onNav={setPage}
               currentUsername={username}
+            />
+          )}
+          {page === "alerts" && (
+            <Alerts
+              onLogout={handleLogout}
+              onNav={setPage}
+            />
+          )}
+          {page === "settings" && (
+            <Settings
+              onLogout={handleLogout}
+              onNav={setPage}
             />
           )}
         </>
