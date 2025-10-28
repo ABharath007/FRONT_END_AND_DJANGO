@@ -8,6 +8,8 @@ from .views import (
     ContactDetail,
     UserContactList,
     MessageListCreate,
+    MessageDelete,
+    AllUsersView,
     MeView,
     SOSCreateView,
 )
@@ -27,6 +29,10 @@ urlpatterns = [
 
     # Messages
     path('messages/', MessageListCreate.as_view(), name='messages'),
+    path('messages/<int:pk>/', MessageDelete.as_view(), name='message-delete'),
+
+    # All users for messaging
+    path('users/', AllUsersView.as_view(), name='all-users'),
 
     # User info
     path('me/', MeView.as_view(), name='me'),
