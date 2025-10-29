@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MenuBar from "./MenuBar";
 import "../style/Sos.css";
 import axios from "axios";
+import { useSettings } from "../context/SettingsContext";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -24,6 +25,9 @@ const getFreshAccessToken = async () => {
 };
 
 export default function Sos({ onLogout, onNav, onUpdateDashboard }) {
+  // Get SOS settings from context
+  const { sosSettings, notificationSettings } = useSettings();
+  
   const [loading, setLoading] = useState(false);
   const [userContacts, setUserContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState(() => {

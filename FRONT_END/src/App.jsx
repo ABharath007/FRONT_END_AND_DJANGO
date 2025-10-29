@@ -9,6 +9,7 @@ import Contacts from "./pages/Contacts";
 import Account from "./pages/Account";
 import Alerts from "./pages/Alerts";
 import Settings from "./pages/Settings";
+import { SettingsProvider } from "./context/SettingsContext";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -54,74 +55,76 @@ export default function App() {
   };
 
   return (
-    <div>
-      {user ? (
-        <>
-          {page === "home" && (
-            <Home username={username} onLogout={handleLogout} onNav={setPage} />
-          )}
-          {page === "sos" && (
-            <Sos
-              onLogout={handleLogout}
-              onNav={setPage}
-            />
-          )}
-          {page === "contacts" && (
-            <Contacts
-              onBack={handleBack}
-              onLogout={handleLogout}
-              onNav={setPage}
-            />
-          )}
-          {page === "account" && (
-            <Account
-              onBack={handleBack}
-              onLogout={handleLogout}
-              onNav={setPage}
-            />
-          )}
-          {page === "heatmap" && (
-            <Heatmap onLogout={handleLogout} onNav={setPage} />
-          )}
-          {page === "messages" && (
-            <Messages
-              userToken={userToken}
-              onLogout={handleLogout}
-              onNav={setPage}
-              currentUsername={username}
-            />
-          )}
-          {page === "alerts" && (
-            <Alerts
-              onLogout={handleLogout}
-              onNav={setPage}
-            />
-          )}
-          {page === "settings" && (
-            <Settings
-              onLogout={handleLogout}
-              onNav={setPage}
-            />
-          )}
-        </>
-      ) : (
-        <>
-          {page === "home" && (
-            <LandingPageScroll
-              onLoginClick={() => openAuth("login")}
-              onRegisterClick={() => openAuth("register")}
-            />
-          )}
-          {page === "auth" && (
-            <LoginRegister
-              initialMode={authMode}
-              onLogin={handleLogin}
-              onRegister={handleRegister}
-              onBack={handleBack}
-            />
-          )}
-        </>
-      )}
-    </div>
+    <SettingsProvider>
+      <div>
+        {user ? (
+          <>
+            {page === "home" && (
+              <Home username={username} onLogout={handleLogout} onNav={setPage} />
+            )}
+            {page === "sos" && (
+              <Sos
+                onLogout={handleLogout}
+                onNav={setPage}
+              />
+            )}
+            {page === "contacts" && (
+              <Contacts
+                onBack={handleBack}
+                onLogout={handleLogout}
+                onNav={setPage}
+              />
+            )}
+            {page === "account" && (
+              <Account
+                onBack={handleBack}
+                onLogout={handleLogout}
+                onNav={setPage}
+              />
+            )}
+            {page === "heatmap" && (
+              <Heatmap onLogout={handleLogout} onNav={setPage} />
+            )}
+            {page === "messages" && (
+              <Messages
+                userToken={userToken}
+                onLogout={handleLogout}
+                onNav={setPage}
+                currentUsername={username}
+              />
+            )}
+            {page === "alerts" && (
+              <Alerts
+                onLogout={handleLogout}
+                onNav={setPage}
+              />
+            )}
+            {page === "settings" && (
+              <Settings
+                onLogout={handleLogout}
+                onNav={setPage}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            {page === "home" && (
+              <LandingPageScroll
+                onLoginClick={() => openAuth("login")}
+                onRegisterClick={() => openAuth("register")}
+              />
+            )}
+            {page === "auth" && (
+              <LoginRegister
+                initialMode={authMode}
+                onLogin={handleLogin}
+                onRegister={handleRegister}
+                onBack={handleBack}
+              />
+            )}
+          </>
+        )}
+      </div>
+    </SettingsProvider>
   );
 }
