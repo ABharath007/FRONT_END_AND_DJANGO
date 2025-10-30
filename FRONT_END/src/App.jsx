@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LandingPageScroll from "./pages/LandingPageScroll";
 import LoginRegister from "./pages/LoginRegister";
 import Home from "./pages/Home";
@@ -9,14 +9,23 @@ import Contacts from "./pages/Contacts";
 import Account from "./pages/Account";
 import Alerts from "./pages/Alerts";
 import Settings from "./pages/Settings";
+import TeamRegister from "./pages/TeamRegister";
+import TeamDashboard from "./pages/TeamDashboard";
 import { SettingsProvider } from "./context/SettingsContext";
+// Phase 2 components are imported within TeamDashboard
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [page, setPage] = useState("home");
+  // Initialize from localStorage
+  const savedToken = localStorage.getItem("accessToken");
+  const savedUsername = localStorage.getItem("username");
+  const savedIsTeamMember = localStorage.getItem("isTeamMember") === "true";
+  
+  const [user, setUser] = useState(savedUsername || null);
+  const [page, setPage] = useState(savedToken && savedUsername ? (savedIsTeamMember ? "team-dashboard" : "home") : "landing");
   const [authMode, setAuthMode] = useState("login");
-  const [userToken, setUserToken] = useState(""); // JWT token after login
-  const [username, setUsername] = useState("");   // Logged-in username
+  const [userToken, setUserToken] = useState(savedToken || "");
+  const [username, setUsername] = useState(savedUsername || "");
+  const [isTeamMember, setIsTeamMember] = useState(savedIsTeamMember);
 
   // Registration callback
   const handleRegister = (username) => {
@@ -27,11 +36,23 @@ export default function App() {
   };
 
   // Login callback
-  const handleLogin = (username, token) => {
+  const handleLogin = (username, token, isTeamMember = false) => {
     setUser(username);
     setUsername(username);
     setUserToken(token);
-    setPage("home");
+    setIsTeamMember(isTeamMember);
+    
+    // Save to localStorage
+    localStorage.setItem("username", username);
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("isTeamMember", isTeamMember.toString());
+    
+    // Route to appropriate dashboard
+    if (isTeamMember) {
+      setPage("team-dashboard");
+    } else {
+      setPage("home");
+    }
     return true;
   };
 
@@ -40,7 +61,13 @@ export default function App() {
     setUser(null);
     setUserToken("");
     setUsername("");
-    setPage("home");
+    setIsTeamMember(false);
+    setPage("landing");
+    
+    // Clear localStorage
+    localStorage.removeItem("username");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("isTeamMember");
   };
 
   // Open login/register page
@@ -49,9 +76,15 @@ export default function App() {
     setPage("auth");
   };
 
-  // Go back to Home
+  // Go back to landing
   const handleBack = () => {
-    setPage("home");
+    if (user) {
+      // If logged in, go to appropriate dashboard
+      setPage(isTeamMember ? "team-dashboard" : "home");
+    } else {
+      // If not logged in, go to landing page
+      setPage("landing");
+    }
   };
 
   return (
@@ -105,13 +138,19 @@ export default function App() {
                 onNav={setPage}
               />
             )}
+            {page === "team-dashboard" && (
+              <TeamDashboard
+                onLogout={handleLogout}
+              />
+            )}
           </>
         ) : (
           <>
-            {page === "home" && (
+            {page === "landing" && (
               <LandingPageScroll
                 onLoginClick={() => openAuth("login")}
                 onRegisterClick={() => openAuth("register")}
+                onTeamRegisterClick={() => setPage("team-register")}
               />
             )}
             {page === "auth" && (
@@ -120,6 +159,16 @@ export default function App() {
                 onLogin={handleLogin}
                 onRegister={handleRegister}
                 onBack={handleBack}
+              />
+            )}
+            {page === "team-register" && (
+              <TeamRegister
+                onBack={handleBack}
+                onSuccess={() => {
+                  alert("Registration successful! Please login with your credentials.");
+                  setPage("auth");
+                  setAuthMode("login");
+                }}
               />
             )}
           </>

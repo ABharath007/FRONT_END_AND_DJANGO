@@ -16,7 +16,11 @@ export default function Home({ username, onLogout, onNav }) {
     try {
       setLoading(true);
       const token = localStorage.getItem("accessToken");
-      if (!token) throw new Error("User not authenticated");
+      if (!token) {
+        console.error("No token found, logging out");
+        onLogout();
+        return;
+      }
 
       const response = await axios.get(`${API_URL}/api/dashboard/`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -24,10 +28,15 @@ export default function Home({ username, onLogout, onNav }) {
       setDashboardData(response.data);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      // If 401 Unauthorized, token is invalid - logout
+      if (error.response && error.response.status === 401) {
+        console.error("Token invalid or expired, logging out");
+        onLogout();
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [onLogout]);
 
   useEffect(() => {
     fetchDashboard();

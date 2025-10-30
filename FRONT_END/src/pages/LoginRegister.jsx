@@ -33,8 +33,22 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
         username: loginUsername,
         password: loginPassword,
       });
-      localStorage.setItem("accessToken", response.data.access);
-      onLogin(loginUsername,response.data.access);
+      const token = response.data.access;
+      localStorage.setItem("accessToken", token);
+      
+      // Check if user is a team member
+      try {
+        await axios.get(`${API_URL}/api/team/dashboard/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // If successful, user is a verified team member
+        console.log("✅ Team member detected");
+        onLogin(loginUsername, token, true); // Pass true for isTeamMember
+      } catch (teamErr) {
+        // Not a team member or not verified, login as normal user
+        console.log("👤 Regular user detected");
+        onLogin(loginUsername, token, false); // Pass false for isTeamMember
+      }
     } catch (err) {
       setError("Invalid username or password.");
     }
@@ -56,8 +70,40 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
     } catch (err) {
       // Handle registration errors from Django
       if (err.response && err.response.data) {
-        let message = Object.values(err.response.data).flat().join(" ");
-        setError(message || "Registration failed.");
+        const data = err.response.data;
+        let errorMsg = "";
+        
+        // Handle specific error cases with user-friendly messages
+        if (data.username) {
+          const usernameError = Array.isArray(data.username) ? data.username.join(", ") : data.username;
+          if (usernameError.includes("already exists")) {
+            errorMsg += "This username is already taken. Please choose another.\n";
+          } else {
+            errorMsg += "Username: " + usernameError + "\n";
+          }
+        }
+        if (data.email) {
+          const emailError = Array.isArray(data.email) ? data.email.join(", ") : data.email;
+          if (emailError.includes("already exists")) {
+            errorMsg += "This email is already registered. Please use another or login.\n";
+          } else {
+            errorMsg += "Email: " + emailError + "\n";
+          }
+        }
+        if (data.password) {
+          errorMsg += "Password: " + (Array.isArray(data.password) ? data.password.join(", ") : data.password) + "\n";
+        }
+        
+        // Handle other errors
+        Object.entries(data).forEach(([key, value]) => {
+          if (!['username', 'email', 'password'].includes(key)) {
+            errorMsg += `${key}: ${Array.isArray(value) ? value.join(", ") : value}\n`;
+          }
+        });
+        
+        setError(errorMsg.trim() || "Registration failed. Please check your information.");
+      } else if (err.message) {
+        setError("Network error: " + err.message);
       } else {
         setError("Registration failed. Please try again.");
       }

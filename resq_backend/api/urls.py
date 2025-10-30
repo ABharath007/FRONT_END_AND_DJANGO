@@ -12,11 +12,32 @@ from .views import (
     AllUsersView,
     MeView,
     SOSCreateView,
+    AllSOSReportsView,
     SOSAlertListView,
     SOSAlertMarkReadView,
     UserSearchView,
     UserContactCreateView,
     UserContactDeleteView,
+    TeamMemberRegistrationView,
+    TeamMemberListView,
+    TeamMemberDetailView,
+    TeamMemberStatusUpdateView,
+    IncidentAssignmentListView,
+    IncidentAssignmentCreateView,
+    IncidentAssignmentUpdateView,
+    IncidentLogCreateView,
+    TeamDashboardView,
+    ResourceTypeListCreateView,
+    ResourceListCreateView,
+    ResourceDetailView,
+    ResourceAssignView,
+    ResourceReturnView,
+    TeamMessageListCreateView,
+    TeamMessageMarkReadView,
+    BroadcastMessageView,
+    AnalyticsDashboardView,
+    TeamListCreateView,
+    MyTeamsView,
 )
 
 urlpatterns = [
@@ -53,4 +74,37 @@ urlpatterns = [
     # User contact management
     path('user-contacts/add/', UserContactCreateView.as_view(), name='user-contact-add'),
     path('user-contacts/<int:pk>/delete/', UserContactDeleteView.as_view(), name='user-contact-delete'),
+
+    # Team Member Management
+    path('team/register/', TeamMemberRegistrationView.as_view(), name='team-register'),
+    path('team/members/', TeamMemberListView.as_view(), name='team-members'),
+    path('team/members/<int:pk>/', TeamMemberDetailView.as_view(), name='team-member-detail'),
+    path('team/status/', TeamMemberStatusUpdateView.as_view(), name='team-status-update'),
+    path('team/dashboard/', TeamDashboardView.as_view(), name='team-dashboard'),
+
+    # Incident Management
+    path('incidents/', AllSOSReportsView.as_view(), name='all-sos-reports'),
+    path('incidents/assignments/', IncidentAssignmentListView.as_view(), name='incident-assignments'),
+    path('incidents/assignments/create/', IncidentAssignmentCreateView.as_view(), name='incident-assignment-create'),
+    path('incidents/assignments/<int:pk>/update/', IncidentAssignmentUpdateView.as_view(), name='incident-assignment-update'),
+    path('incidents/logs/create/', IncidentLogCreateView.as_view(), name='incident-log-create'),
+
+    # Phase 2: Resource Management
+    path('resources/types/', ResourceTypeListCreateView.as_view(), name='resource-types'),
+    path('resources/', ResourceListCreateView.as_view(), name='resources'),
+    path('resources/<int:pk>/', ResourceDetailView.as_view(), name='resource-detail'),
+    path('resources/assign/', ResourceAssignView.as_view(), name='resource-assign'),
+    path('resources/return/<int:pk>/', ResourceReturnView.as_view(), name='resource-return'),
+
+    # Phase 2: Team Communication
+    path('team/messages/', TeamMessageListCreateView.as_view(), name='team-messages'),
+    path('team/messages/<int:pk>/mark-read/', TeamMessageMarkReadView.as_view(), name='team-message-mark-read'),
+    path('team/broadcast/', BroadcastMessageView.as_view(), name='broadcast-message'),
+
+    # Phase 2: Analytics
+    path('analytics/', AnalyticsDashboardView.as_view(), name='analytics-dashboard'),
+
+    # Team Management
+    path('teams/', TeamListCreateView.as_view(), name='teams-list-create'),
+    path('my-teams/', MyTeamsView.as_view(), name='my-teams'),
 ]

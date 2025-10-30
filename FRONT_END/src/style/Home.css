@@ -1,7 +1,7 @@
 .dashboard {
   margin-left: 85px;
   padding: 20px;
-  background: #FFF5EE;
+  background: #ffffff;
   min-height: 100vh;
 }
 
@@ -22,7 +22,7 @@
 
 .username-btn {
   background: transparent;
-  color: #326273;
+  color: white;
   border: none;
   padding: 0;
   font-size: 1rem;
@@ -35,7 +35,7 @@
 }
 
 .username-btn:hover {
-  color: #5c9ead;
+  color:white;
   transform: scale(1.15) translateY(-2px);
 }
 
@@ -52,7 +52,7 @@
 }
 .username-link {
   cursor: pointer;
-  color: #326273;
+  color: white;
   transition: color 0.2s;
 }
 .username-link:hover {

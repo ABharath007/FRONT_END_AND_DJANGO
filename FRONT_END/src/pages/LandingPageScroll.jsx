@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function LandingPageScroll({ onLoginClick, onRegisterClick }) {
+export default function LandingPageScroll({ onLoginClick, onRegisterClick, onTeamRegisterClick }) {
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const testimonialsRef = useRef(null);
@@ -63,6 +63,7 @@ export default function LandingPageScroll({ onLoginClick, onRegisterClick }) {
           <div className="header-buttons">
             <button onClick={onLoginClick} className="header-login">Login</button>
             <button onClick={onRegisterClick} className="header-register">Register</button>
+            <button onClick={onTeamRegisterClick} className="header-team">Team Join</button>
           </div>
         </header>
 
