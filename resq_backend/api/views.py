@@ -211,13 +211,17 @@ class SOSCreateView(APIView):
     def post(self, request):
         sos_type = request.data.get("type", "General Emergency")
         selected_contacts = request.data.get("contacts", [])
-        latitude = request.data.get("latitude")
-        longitude = request.data.get("longitude")
+        latitude = request.data.get("latitude", 0.0)
+        longitude = request.data.get("longitude", 0.0)
+        description = request.data.get("description", f"{sos_type} emergency reported")
 
         sos = SOSReport.objects.create(
             user=request.user,
             type=sos_type,
-            status="Pending"
+            status="Pending",
+            latitude=latitude,
+            longitude=longitude,
+            description=description
         )
 
         # Send SOS alerts to selected contacts
@@ -749,18 +753,26 @@ class TeamListCreateView(generics.ListCreateAPIView):
     serializer_class = TeamSerializer
     
     def get_queryset(self):
+        # Show all active teams, even if they have no members yet
         return Team.objects.filter(is_active=True).annotate(
             member_count=Count('members', filter=Q(members__is_approved=True))
-        )
+        ).order_by('-created_at')
     
     def perform_create(self, serializer):
         try:
-            team_member = TeamMember.objects.get(user=self.request.user)
-            if team_member.role not in ['team_leader', 'coordinator']:
-                raise PermissionDenied("Only team leaders can create teams")
-            serializer.save(leader=team_member)
+            team_member = TeamMember.objects.get(user=self.request.user, is_verified=True)
+            # Any verified team member can create a team and become its leader
+            team = serializer.save(leader=team_member)
+            
+            # Automatically add creator as a member
+            TeamMembership.objects.create(
+                team=team,
+                member=team_member,
+                role_in_team=team_member.role,
+                is_approved=True
+            )
         except TeamMember.DoesNotExist:
-            raise PermissionDenied("You must be a verified team member")
+            raise PermissionDenied("You must be a verified team member to create teams")
 
 class MyTeamsView(APIView):
     permission_classes = [IsAuthenticated]

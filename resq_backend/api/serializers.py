@@ -50,9 +50,6 @@ class UserSerializer(serializers.ModelSerializer):
 class SOSReportSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     phone_number = serializers.SerializerMethodField()
-    latitude = serializers.SerializerMethodField()
-    longitude = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
     
     class Meta:
         model = SOSReport
@@ -63,26 +60,6 @@ class SOSReportSerializer(serializers.ModelSerializer):
             return obj.user.profile.phone
         except:
             return "N/A"
-    
-    def get_latitude(self, obj):
-        # Get latest location share for this user
-        try:
-            location = LocationShare.objects.filter(user=obj.user).latest('shared_at')
-            return location.latitude
-        except:
-            return 0.0
-    
-    def get_longitude(self, obj):
-        # Get latest location share for this user
-        try:
-            location = LocationShare.objects.filter(user=obj.user).latest('shared_at')
-            return location.longitude
-        except:
-            return 0.0
-    
-    def get_description(self, obj):
-        # SOSReport doesn't have description field, return type as description
-        return f"{obj.type} emergency reported"
 
 # ---------- LOCATION SHARE SERIALIZER ----------
 class LocationShareSerializer(serializers.ModelSerializer):
@@ -326,7 +303,7 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = ['id', 'name', 'description', 'leader', 'leader_name', 'department', 
                   'department_display', 'created_at', 'is_active', 'max_members', 'member_count']
-        read_only_fields = ['created_at', 'member_count']
+        read_only_fields = ['created_at', 'member_count', 'leader', 'leader_name']
 
 class TeamMembershipSerializer(serializers.ModelSerializer):
     team_name = serializers.CharField(source='team.name', read_only=True)

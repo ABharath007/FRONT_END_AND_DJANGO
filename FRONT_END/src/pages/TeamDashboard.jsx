@@ -305,7 +305,7 @@ export default function TeamDashboard({ onLogout }) {
           className={activeTab === "team" ? "tab active" : "tab"}
           onClick={() => setActiveTab("team")}
         >
-          Team Members ({available_team.length + 1})
+          All Responders ({available_team.length + 1})
         </button>
       </div>
 
@@ -335,7 +335,20 @@ export default function TeamDashboard({ onLogout }) {
                       <div className="incident-details">
                         <p><strong>👤 User:</strong> {sos.username}</p>
                         <p><strong>📞 Phone:</strong> {sos.phone_number}</p>
-                        <p><strong>📍 Location:</strong> {sos.latitude}, {sos.longitude}</p>
+                        <p>
+                          <strong>📍 Location:</strong> {sos.latitude}, {sos.longitude}
+                          {sos.latitude !== 0 && sos.longitude !== 0 && (
+                            <a
+                              href={`https://www.google.com/maps?q=${sos.latitude},${sos.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="map-link-inline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              🗺️ View on Map
+                            </a>
+                          )}
+                        </p>
                         <p><strong>📝 Description:</strong> {sos.description || "No description"}</p>
                         <p className="incident-date">
                           🕐 {new Date(sos.date).toLocaleString()}
@@ -553,7 +566,8 @@ export default function TeamDashboard({ onLogout }) {
 
         {activeTab === "team" && (
           <div className="team-section">
-            <h2>👥 Team Members</h2>
+            <h2>👥 All Emergency Responders</h2>
+            <p style={{color: '#666', marginBottom: '20px'}}>Directory of all verified responders in the system</p>
             <div className="team-grid">
               {/* Current User */}
               <div className="team-member-card current-user">

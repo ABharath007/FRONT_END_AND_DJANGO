@@ -62,7 +62,12 @@ export default function Teams({ onBack }) {
       fetchTeams();
       fetchMyTeams();
     } catch (error) {
-      alert(error.response?.data?.error || "Failed to create team");
+      console.error("Create team error:", error.response?.data);
+      const errorMsg = error.response?.data?.detail || 
+                       error.response?.data?.error || 
+                       JSON.stringify(error.response?.data) ||
+                       "Failed to create team. You must be a Team Leader or Coordinator.";
+      alert(errorMsg);
     }
   };
 

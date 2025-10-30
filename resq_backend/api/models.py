@@ -7,6 +7,9 @@ class SOSReport(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=100)  # e.g., "Fire Alert", "Medical Emergency"
     status = models.CharField(max_length=20, default='Pending')  # e.g., "Pending", "Resolved"
+    latitude = models.FloatField(default=0.0)
+    longitude = models.FloatField(default=0.0)
+    description = models.TextField(blank=True, default='')
 
     def __str__(self):
         return f"{self.type} on {self.date.strftime('%Y-%m-%d %H:%M')} by {self.user.username}"
@@ -289,10 +292,6 @@ class Team(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.get_department_display()}"
-    
-    @property
-    def member_count(self):
-        return self.members.filter(is_approved=True).count()
 
 class TeamMembership(models.Model):
     """Links team members to teams"""

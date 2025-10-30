@@ -755,6 +755,25 @@
   transform: translateX(3px);
 }
 
+.map-link-inline {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 4px 10px;
+  background: #667eea;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.map-link-inline:hover {
+  background: #764ba2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
 .description-text {
   margin: 8px 0 0 0;
   color: #555;
