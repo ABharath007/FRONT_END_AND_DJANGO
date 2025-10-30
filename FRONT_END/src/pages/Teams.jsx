@@ -10,6 +10,8 @@ export default function Teams({ onBack }) {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showTeamDetails, setShowTeamDetails] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const [activeTab, setActiveTab] = useState("browse"); // browse, my-teams, or requests
   
   const [createForm, setCreateForm] = useState({
@@ -22,6 +24,7 @@ export default function Teams({ onBack }) {
   useEffect(() => {
     fetchTeams();
     fetchMyTeams();
+    fetchPendingRequests();
   }, []);
 
   const fetchTeams = async () => {
@@ -47,6 +50,49 @@ export default function Teams({ onBack }) {
       setMyTeams(response.data);
     } catch (error) {
       console.error("Failed to fetch my teams:", error);
+    }
+  };
+
+  const fetchPendingRequests = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axios.get(`${API_URL}/api/teams/requests/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPendingRequests(response.data);
+    } catch (error) {
+      console.error("Failed to fetch pending requests:", error);
+    }
+  };
+
+  const handleApprove = async (requestId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      await axios.post(
+        `${API_URL}/api/teams/requests/${requestId}/approve/`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Request approved! Member added to team. Go to Team Dashboard to see them.");
+      fetchPendingRequests();
+      fetchMyTeams();
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to approve request");
+    }
+  };
+
+  const handleReject = async (requestId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      await axios.post(
+        `${API_URL}/api/teams/requests/${requestId}/reject/`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Request rejected");
+      fetchPendingRequests();
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to reject request");
     }
   };
 
@@ -96,7 +142,7 @@ export default function Teams({ onBack }) {
   return (
     <div className="teams-container">
       <div className="teams-header">
-        <button onClick={onBack} className="back-btn">← Back</button>
+        <button onClick={onBack} className="back-btn">←</button>
         <h1>🏢 Team Management</h1>
         <button onClick={() => setShowCreateModal(true)} className="create-team-btn">
           + Create Team
@@ -117,6 +163,14 @@ export default function Teams({ onBack }) {
         >
           My Teams ({myTeams.length})
         </button>
+        {pendingRequests.length > 0 && (
+          <button
+            className={activeTab === "requests" ? "tab active" : "tab"}
+            onClick={() => setActiveTab("requests")}
+          >
+            Pending Requests ({pendingRequests.length})
+          </button>
+        )}
       </div>
 
       {/* Browse Teams Tab */}
@@ -169,7 +223,54 @@ export default function Teams({ onBack }) {
                   <p><strong>👤 Leader:</strong> {team.leader_name}</p>
                   <p><strong>👥 Members:</strong> {team.member_count} / {team.max_members}</p>
                 </div>
-                <button className="view-btn">View Team</button>
+                <button 
+                  className="view-btn"
+                  onClick={() => {
+                    setSelectedTeam(team);
+                    setShowTeamDetails(true);
+                  }}
+                >
+                  View Team
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Pending Requests Tab */}
+      {activeTab === "requests" && (
+        <div className="teams-grid">
+          {pendingRequests.length === 0 ? (
+            <p className="empty-state">No pending requests</p>
+          ) : (
+            pendingRequests.map((req) => (
+              <div key={req.id} className="team-card request-card">
+                <div className="team-header">
+                  <h3>📩 Join Request</h3>
+                  <span className="status-badge pending">Pending</span>
+                </div>
+                <div className="request-info">
+                  <p><strong>👤 From:</strong> {req.member_name}</p>
+                  <p><strong>🏢 Team:</strong> {req.team_name}</p>
+                  <p><strong>🎯 Requested Role:</strong> {req.requested_role_display}</p>
+                  {req.message && <p><strong>💬 Message:</strong> {req.message}</p>}
+                  <p className="request-date">📅 {new Date(req.requested_at).toLocaleString()}</p>
+                </div>
+                <div className="request-actions">
+                  <button 
+                    className="approve-btn"
+                    onClick={() => handleApprove(req.id)}
+                  >
+                    ✓ Approve
+                  </button>
+                  <button 
+                    className="reject-btn"
+                    onClick={() => handleReject(req.id)}
+                  >
+                    ✗ Reject
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -238,6 +339,28 @@ export default function Teams({ onBack }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Team Details Modal */}
+      {showTeamDetails && selectedTeam && (
+        <div className="modal-overlay" onClick={() => setShowTeamDetails(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedTeam.name}</h2>
+            <div className="team-details-content">
+              <p><strong>📝 Description:</strong> {selectedTeam.description || "No description"}</p>
+              <p><strong>🏢 Department:</strong> {selectedTeam.department_display}</p>
+              <p><strong>👤 Leader:</strong> {selectedTeam.leader_name}</p>
+              <p><strong>👥 Members:</strong> {selectedTeam.member_count} / {selectedTeam.max_members}</p>
+              <p><strong>📅 Created:</strong> {new Date(selectedTeam.created_at).toLocaleDateString()}</p>
+              <p><strong>✅ Status:</strong> {selectedTeam.is_active ? "Active" : "Inactive"}</p>
+            </div>
+            <div className="modal-actions">
+              <button onClick={() => setShowTeamDetails(false)} className="cancel-btn">
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

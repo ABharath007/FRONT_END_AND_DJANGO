@@ -123,9 +123,7 @@ export default function ResourceManagement({ onBack }) {
     <div className="resource-management">
       {/* Header */}
       <div className="resource-header">
-        <button onClick={onBack} className="back-btn">
-          ← Back to Dashboard
-        </button>
+        <button onClick={onBack} className="back-btn">←</button>
         <h1>🔧 Resource Management</h1>
         <p className="subtitle">Track and manage emergency resources</p>
       </div>

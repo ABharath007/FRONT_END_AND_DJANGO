@@ -123,9 +123,7 @@ export default function TeamCommunication({ onBack, teamMember }) {
     <div className="team-communication">
       {/* Header */}
       <div className="communication-header">
-        <button onClick={onBack} className="back-btn">
-          ← Back to Dashboard
-        </button>
+        <button onClick={onBack} className="back-btn">←</button>
         <h1>💬 Team Communication</h1>
         <p className="subtitle">Coordinate with your team members</p>
       </div>

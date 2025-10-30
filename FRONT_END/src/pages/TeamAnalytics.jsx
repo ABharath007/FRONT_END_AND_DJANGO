@@ -48,9 +48,7 @@ export default function TeamAnalytics({ onBack }) {
     <div className="team-analytics">
       {/* Header */}
       <div className="analytics-header">
-        <button onClick={onBack} className="back-btn">
-          ← Back to Dashboard
-        </button>
+        <button onClick={onBack} className="back-btn">←</button>
         <h1>📊 Analytics Dashboard</h1>
         <p className="subtitle">Performance metrics and insights</p>
       </div>

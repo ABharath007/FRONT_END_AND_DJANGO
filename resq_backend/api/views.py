@@ -839,3 +839,85 @@ class TeamJoinRequestView(APIView):
                           status=status.HTTP_403_FORBIDDEN)
         except Team.DoesNotExist:
             return Response({"error": "Team not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class MyTeamRequestsView(APIView):
+    """Get pending join requests for teams I lead"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            team_member = TeamMember.objects.get(user=request.user)
+            # Get teams where this user is the leader
+            my_led_teams = Team.objects.filter(leader=team_member)
+            # Get pending requests for those teams
+            requests = TeamJoinRequest.objects.filter(
+                team__in=my_led_teams,
+                status='pending'
+            ).select_related('team', 'member__user')
+            
+            serializer = TeamJoinRequestSerializer(requests, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except TeamMember.DoesNotExist:
+            return Response({"error": "Team member profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class ApproveJoinRequestView(APIView):
+    """Approve a join request"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, request_id):
+        try:
+            team_member = TeamMember.objects.get(user=request.user)
+            join_request = TeamJoinRequest.objects.get(id=request_id, status='pending')
+            
+            # Check if user is the team leader
+            if join_request.team.leader != team_member:
+                return Response({"error": "Only team leader can approve requests"}, 
+                              status=status.HTTP_403_FORBIDDEN)
+            
+            # Approve request
+            join_request.status = 'approved'
+            join_request.reviewed_at = timezone.now()
+            join_request.reviewed_by = request.user
+            join_request.save()
+            
+            # Create team membership
+            TeamMembership.objects.create(
+                team=join_request.team,
+                member=join_request.member,
+                role_in_team=join_request.requested_role,
+                is_approved=True
+            )
+            
+            return Response({"message": "Request approved successfully"}, status=status.HTTP_200_OK)
+            
+        except TeamMember.DoesNotExist:
+            return Response({"error": "Team member profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        except TeamJoinRequest.DoesNotExist:
+            return Response({"error": "Request not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class RejectJoinRequestView(APIView):
+    """Reject a join request"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, request_id):
+        try:
+            team_member = TeamMember.objects.get(user=request.user)
+            join_request = TeamJoinRequest.objects.get(id=request_id, status='pending')
+            
+            # Check if user is the team leader
+            if join_request.team.leader != team_member:
+                return Response({"error": "Only team leader can reject requests"}, 
+                              status=status.HTTP_403_FORBIDDEN)
+            
+            # Reject request
+            join_request.status = 'rejected'
+            join_request.reviewed_at = timezone.now()
+            join_request.reviewed_by = request.user
+            join_request.save()
+            
+            return Response({"message": "Request rejected"}, status=status.HTTP_200_OK)
+            
+        except TeamMember.DoesNotExist:
+            return Response({"error": "Team member profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        except TeamJoinRequest.DoesNotExist:
+            return Response({"error": "Request not found"}, status=status.HTTP_404_NOT_FOUND)
