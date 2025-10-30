@@ -501,11 +501,24 @@ class TeamDashboardView(APIView):
                 status__in=['received', 'dispatched', 'en_route', 'on_scene']
             ).order_by('-assigned_at')
             
-            # Get available team members
+            # Get team members from the same teams as current user
+            # First get all teams the current user is in
+            my_teams = TeamMembership.objects.filter(
+                member=team_member, 
+                is_approved=True
+            ).values_list('team_id', flat=True)
+            
+            # Get all members from those teams
+            team_member_ids = TeamMembership.objects.filter(
+                team_id__in=my_teams,
+                is_approved=True
+            ).exclude(member=team_member).values_list('member_id', flat=True)
+            
+            # Get the actual TeamMember objects
             available_team = TeamMember.objects.filter(
-                status__in=['available', 'on_duty'],
+                id__in=team_member_ids,
                 is_verified=True
-            ).exclude(id=team_member.id)
+            )
             
             data = {
                 "team_member": TeamMemberSerializer(team_member).data,
@@ -754,8 +767,9 @@ class TeamListCreateView(generics.ListCreateAPIView):
     
     def get_queryset(self):
         # Show all active teams, even if they have no members yet
+        from django.db.models import Count, Q
         return Team.objects.filter(is_active=True).annotate(
-            member_count=Count('members', filter=Q(members__is_approved=True))
+            member_count=Count('members', filter=Q(members__is_approved=True), distinct=True)
         ).order_by('-created_at')
     
     def perform_create(self, serializer):
@@ -786,3 +800,42 @@ class MyTeamsView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except TeamMember.DoesNotExist:
             return Response({"error": "Team member profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class TeamJoinRequestView(APIView):
+    """Request to join a team"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            team_member = TeamMember.objects.get(user=request.user, is_verified=True)
+            team_id = request.data.get('team_id')
+            team = Team.objects.get(id=team_id, is_active=True)
+            
+            # Check if already a member
+            if TeamMembership.objects.filter(team=team, member=team_member, is_approved=True).exists():
+                return Response({"error": "You are already a member of this team"}, 
+                              status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if request already exists
+            if TeamJoinRequest.objects.filter(team=team, member=team_member, status='pending').exists():
+                return Response({"error": "You already have a pending request for this team"}, 
+                              status=status.HTTP_400_BAD_REQUEST)
+            
+            # Create join request
+            join_request = TeamJoinRequest.objects.create(
+                team=team,
+                member=team_member,
+                requested_role=request.data.get('requested_role', team_member.role),
+                message=request.data.get('message', '')
+            )
+            
+            return Response({
+                "message": "Join request sent successfully",
+                "request_id": join_request.id
+            }, status=status.HTTP_201_CREATED)
+            
+        except TeamMember.DoesNotExist:
+            return Response({"error": "You must be a verified team member"}, 
+                          status=status.HTTP_403_FORBIDDEN)
+        except Team.DoesNotExist:
+            return Response({"error": "Team not found"}, status=status.HTTP_404_NOT_FOUND)

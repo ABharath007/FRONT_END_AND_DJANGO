@@ -297,13 +297,13 @@ class IncidentStatisticsSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     leader_name = serializers.CharField(source='leader.user.username', read_only=True)
     department_display = serializers.CharField(source='get_department_display', read_only=True)
-    member_count = serializers.IntegerField(read_only=True)
+    member_count = serializers.IntegerField(read_only=True, required=False)
     
     class Meta:
         model = Team
         fields = ['id', 'name', 'description', 'leader', 'leader_name', 'department', 
                   'department_display', 'created_at', 'is_active', 'max_members', 'member_count']
-        read_only_fields = ['created_at', 'member_count', 'leader', 'leader_name']
+        read_only_fields = ['created_at', 'leader', 'leader_name', 'member_count']
 
 class TeamMembershipSerializer(serializers.ModelSerializer):
     team_name = serializers.CharField(source='team.name', read_only=True)

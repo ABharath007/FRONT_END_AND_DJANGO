@@ -7,9 +7,10 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 export default function Teams({ onBack }) {
   const [teams, setTeams] = useState([]);
   const [myTeams, setMyTeams] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("browse"); // browse or my-teams
+  const [activeTab, setActiveTab] = useState("browse"); // browse, my-teams, or requests
   
   const [createForm, setCreateForm] = useState({
     name: "",
@@ -71,6 +72,25 @@ export default function Teams({ onBack }) {
     }
   };
 
+  const handleJoinRequest = async (teamId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axios.post(
+        `${API_URL}/api/teams/join/`,
+        { team_id: teamId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert(response.data.message || "Join request sent! Waiting for team leader approval.");
+      fetchTeams();
+    } catch (error) {
+      console.error("Join request error:", error.response?.data);
+      const errorMsg = error.response?.data?.error || 
+                       error.response?.data?.detail ||
+                       "Failed to send join request";
+      alert(errorMsg);
+    }
+  };
+
   if (loading) return <div className="loading">Loading teams...</div>;
 
   return (
@@ -118,7 +138,12 @@ export default function Teams({ onBack }) {
                   <p><strong>👤 Leader:</strong> {team.leader_name}</p>
                   <p><strong>👥 Members:</strong> {team.member_count} / {team.max_members}</p>
                 </div>
-                <button className="join-btn">Request to Join</button>
+                <button 
+                  className="join-btn"
+                  onClick={() => handleJoinRequest(team.id)}
+                >
+                  Request to Join
+                </button>
               </div>
             ))
           )}

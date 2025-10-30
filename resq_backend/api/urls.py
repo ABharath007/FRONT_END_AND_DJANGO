@@ -38,6 +38,7 @@ from .views import (
     AnalyticsDashboardView,
     TeamListCreateView,
     MyTeamsView,
+    TeamJoinRequestView,
 )
 
 urlpatterns = [
@@ -107,4 +108,5 @@ urlpatterns = [
     # Team Management
     path('teams/', TeamListCreateView.as_view(), name='teams-list-create'),
     path('my-teams/', MyTeamsView.as_view(), name='my-teams'),
+    path('teams/join/', TeamJoinRequestView.as_view(), name='team-join-request'),
 ]

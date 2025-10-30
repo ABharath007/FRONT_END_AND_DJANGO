@@ -305,7 +305,7 @@ export default function TeamDashboard({ onLogout }) {
           className={activeTab === "team" ? "tab active" : "tab"}
           onClick={() => setActiveTab("team")}
         >
-          All Responders ({available_team.length + 1})
+          My Team Members ({available_team.length + 1})
         </button>
       </div>
 
@@ -566,8 +566,8 @@ export default function TeamDashboard({ onLogout }) {
 
         {activeTab === "team" && (
           <div className="team-section">
-            <h2>👥 All Emergency Responders</h2>
-            <p style={{color: '#666', marginBottom: '20px'}}>Directory of all verified responders in the system</p>
+            <h2>👥 My Team Members</h2>
+            <p style={{color: '#666', marginBottom: '20px'}}>Members from teams you belong to</p>
             <div className="team-grid">
               {/* Current User */}
               <div className="team-member-card current-user">

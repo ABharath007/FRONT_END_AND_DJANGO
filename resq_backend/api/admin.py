@@ -63,7 +63,7 @@ admin.site.register(TeamMessageRead)
 # Team Management Admin
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ['name', 'leader', 'department', 'member_count', 'is_active', 'created_at']
+    list_display = ['name', 'leader', 'department', 'is_active', 'created_at']
     list_filter = ['department', 'is_active', 'created_at']
     search_fields = ['name', 'leader__user__username']
 
