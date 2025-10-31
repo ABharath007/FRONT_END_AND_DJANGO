@@ -210,7 +210,6 @@ const TeamMessages = ({ userToken, onBack, currentUsername }) => {
   const getMessageCount = (userId) => {
     if (!currentUserId) return 0;
     const threadKey = `dm-${userId}`;
-    if (viewedThreads.has(threadKey)) return 0;
     
     const count = messages.filter((m) => {
       const mSender = m.sender_id ?? m.sender;
@@ -222,8 +221,9 @@ const TeamMessages = ({ userToken, onBack, currentUsername }) => {
       );
     }).length;
     
+    // Only hide count if currently viewing this thread
     if (activeThread.type === 'dm' && activeThread.userId === userId) {
-      localStorage.setItem(`lastCount-${threadKey}`, count.toString());
+      return 0;
     }
     
     return count;
@@ -231,11 +231,11 @@ const TeamMessages = ({ userToken, onBack, currentUsername }) => {
 
   // Get global chat message count
   const getGlobalMessageCount = () => {
-    if (viewedThreads.has("global")) return 0;
     const count = messages.filter(m => !m.receiver && !m.receiver_id).length;
     
+    // Only hide count if currently viewing global chat
     if (activeThread.type === 'global') {
-      localStorage.setItem('lastCount-global', count.toString());
+      return 0;
     }
     
     return count;

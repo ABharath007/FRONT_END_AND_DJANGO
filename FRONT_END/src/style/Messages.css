@@ -15,16 +15,12 @@
   grid-template-columns: 300px 1fr;
   height: 100vh;
   background: var(--bg);
-  max-width: 1400px;
-  margin: 0 auto;
-  border-radius: 15px;
+  max-width: calc(100vw - 100px);
+  margin-left: 100px;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
-
-/* Offset by fixed MenuBar (85px default, 260px on hover) */
-.menu + .messages-wrap { margin-left: 85px; transition: margin-left 0.3s ease; }
-.menu:hover + .messages-wrap { margin-left: 260px; }
 
 /* Sidebar */
 .chat-sidebar {
