@@ -15,11 +15,19 @@
   grid-template-columns: 300px 1fr;
   height: 100vh;
   background: var(--bg);
-  max-width: calc(100vw - 100px);
-  margin-left: 100px;
+  max-width: calc(100vw - 85px);
+  margin-left: 85px;
   border-radius: 0;
   overflow: hidden;
   box-shadow: none;
+  transition: margin-left 0.3s ease, max-width 0.3s ease;
+}
+
+/* Shift right when MenuBar is hovered */
+.menu:hover ~ * .messages-wrap,
+body:has(.menu:hover) .messages-wrap {
+  margin-left: 260px;
+  max-width: calc(100vw - 260px);
 }
 
 /* Sidebar */
