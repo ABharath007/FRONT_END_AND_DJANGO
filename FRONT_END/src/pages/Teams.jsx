@@ -13,6 +13,11 @@ export default function Teams({ onBack }) {
   const [showTeamDetails, setShowTeamDetails] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [activeTab, setActiveTab] = useState("browse"); // browse, my-teams, or requests
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [teamMessages, setTeamMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [incidents, setIncidents] = useState([]);
+  const [activeDetailTab, setActiveDetailTab] = useState("info"); // info, members, chat, heatmap
   
   const [createForm, setCreateForm] = useState({
     name: "",
@@ -76,6 +81,7 @@ export default function Teams({ onBack }) {
       alert("Request approved! Member added to team. Go to Team Dashboard to see them.");
       fetchPendingRequests();
       fetchMyTeams();
+      fetchTeams();
     } catch (error) {
       alert(error.response?.data?.error || "Failed to approve request");
     }
@@ -137,6 +143,68 @@ export default function Teams({ onBack }) {
     }
   };
 
+  const fetchTeamMembers = async (teamId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axios.get(`${API_URL}/api/teams/${teamId}/members/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeamMembers(response.data);
+    } catch (error) {
+      console.error("Failed to fetch team members:", error);
+    }
+  };
+
+  const fetchTeamMessages = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axios.get(`${API_URL}/api/team/messages/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeamMessages(response.data);
+    } catch (error) {
+      console.error("Failed to fetch messages:", error);
+    }
+  };
+
+  const sendTeamMessage = async () => {
+    if (!newMessage.trim()) return;
+    try {
+      const token = localStorage.getItem("accessToken");
+      await axios.post(
+        `${API_URL}/api/team/messages/`,
+        { message: newMessage, department: selectedTeam?.department },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNewMessage("");
+      fetchTeamMessages();
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      alert("Failed to send message");
+    }
+  };
+
+  const fetchIncidents = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axios.get(`${API_URL}/api/incidents/heatmap/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setIncidents(response.data);
+    } catch (error) {
+      console.error("Failed to fetch incidents:", error);
+    }
+  };
+
+  const openTeamDetails = (team) => {
+    setSelectedTeam(team);
+    setShowTeamDetails(true);
+    setActiveDetailTab("info");
+    fetchTeamMembers(team.id);
+    fetchTeamMessages();
+    fetchIncidents();
+  };
+
   if (loading) return <div className="loading">Loading teams...</div>;
 
   return (
@@ -176,10 +244,12 @@ export default function Teams({ onBack }) {
       {/* Browse Teams Tab */}
       {activeTab === "browse" && (
         <div className="teams-grid">
-          {teams.length === 0 ? (
-            <p className="empty-state">No teams available</p>
+          {teams.filter(team => !myTeams.some(myTeam => myTeam.id === team.id)).length === 0 ? (
+            <p className="empty-state">No teams available to join</p>
           ) : (
-            teams.map((team) => (
+            teams
+              .filter(team => !myTeams.some(myTeam => myTeam.id === team.id))
+              .map((team) => (
               <div key={team.id} className="team-card">
                 <div className="team-header">
                   <h3>{team.name}</h3>
@@ -225,10 +295,7 @@ export default function Teams({ onBack }) {
                 </div>
                 <button 
                   className="view-btn"
-                  onClick={() => {
-                    setSelectedTeam(team);
-                    setShowTeamDetails(true);
-                  }}
+                  onClick={() => openTeamDetails(team)}
                 >
                   View Team
                 </button>
@@ -346,16 +413,139 @@ export default function Teams({ onBack }) {
       {/* Team Details Modal */}
       {showTeamDetails && selectedTeam && (
         <div className="modal-overlay" onClick={() => setShowTeamDetails(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content team-details-modal" onClick={(e) => e.stopPropagation()}>
             <h2>{selectedTeam.name}</h2>
-            <div className="team-details-content">
-              <p><strong>📝 Description:</strong> {selectedTeam.description || "No description"}</p>
-              <p><strong>🏢 Department:</strong> {selectedTeam.department_display}</p>
-              <p><strong>👤 Leader:</strong> {selectedTeam.leader_name}</p>
-              <p><strong>👥 Members:</strong> {selectedTeam.member_count} / {selectedTeam.max_members}</p>
-              <p><strong>📅 Created:</strong> {new Date(selectedTeam.created_at).toLocaleDateString()}</p>
-              <p><strong>✅ Status:</strong> {selectedTeam.is_active ? "Active" : "Inactive"}</p>
+            
+            {/* Detail Tabs */}
+            <div className="detail-tabs">
+              <button
+                className={activeDetailTab === "info" ? "detail-tab active" : "detail-tab"}
+                onClick={() => setActiveDetailTab("info")}
+              >
+                📝 Info
+              </button>
+              <button
+                className={activeDetailTab === "members" ? "detail-tab active" : "detail-tab"}
+                onClick={() => setActiveDetailTab("members")}
+              >
+                👥 Members
+              </button>
+              <button
+                className={activeDetailTab === "chat" ? "detail-tab active" : "detail-tab"}
+                onClick={() => setActiveDetailTab("chat")}
+              >
+                💬 Chat
+              </button>
+              <button
+                className={activeDetailTab === "heatmap" ? "detail-tab active" : "detail-tab"}
+                onClick={() => setActiveDetailTab("heatmap")}
+              >
+                🗺️ Heat Map
+              </button>
             </div>
+
+            {/* Info Tab */}
+            {activeDetailTab === "info" && (
+              <div className="team-details-content">
+                <p><strong>📝 Description:</strong> {selectedTeam.description || "No description"}</p>
+                <p><strong>🏢 Department:</strong> {selectedTeam.department_display}</p>
+                <p>
+                  <strong>👤 Leader:</strong> {selectedTeam.leader_name}
+                  {selectedTeam.leader_verified && <span className="verified-badge">✓</span>}
+                </p>
+                <p><strong>👥 Members:</strong> {selectedTeam.member_count} / {selectedTeam.max_members}</p>
+                <p><strong>📅 Created:</strong> {new Date(selectedTeam.created_at).toLocaleDateString()}</p>
+                <p><strong>✅ Status:</strong> {selectedTeam.is_active ? "Active" : "Inactive"}</p>
+              </div>
+            )}
+
+            {/* Members Tab */}
+            {activeDetailTab === "members" && (
+              <div className="team-members-list">
+                {teamMembers.length === 0 ? (
+                  <p className="empty-state">No members yet</p>
+                ) : (
+                  teamMembers.map((membership) => (
+                    <div key={membership.id} className="member-item">
+                      <div className="member-info">
+                        <span className="member-name">
+                          {membership.member_name}
+                          {membership.member_verified && <span className="verified-badge">✓</span>}
+                        </span>
+                        <span className="member-role">{membership.role_display}</span>
+                      </div>
+                      <span className="member-joined">
+                        Joined: {new Date(membership.joined_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Chat Tab */}
+            {activeDetailTab === "chat" && (
+              <div className="team-chat">
+                <div className="chat-messages">
+                  {teamMessages.length === 0 ? (
+                    <p className="empty-state">No messages yet</p>
+                  ) : (
+                    teamMessages.map((msg) => (
+                      <div key={msg.id} className="chat-message">
+                        <div className="message-header">
+                          <span className="message-sender">
+                            {msg.sender_name}
+                            {msg.sender_verified && <span className="verified-badge">✓</span>}
+                          </span>
+                          <span className="message-time">
+                            {new Date(msg.created_at).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="message-text">{msg.message}</p>
+                        {msg.is_broadcast && <span className="broadcast-badge">📢 Broadcast</span>}
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="chat-input">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && sendTeamMessage()}
+                    placeholder="Type a message..."
+                  />
+                  <button onClick={sendTeamMessage} className="send-btn">
+                    Send
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Heat Map Tab */}
+            {activeDetailTab === "heatmap" && (
+              <div className="team-heatmap">
+                <h3>Incident Heat Map</h3>
+                {incidents.length === 0 ? (
+                  <p className="empty-state">No incidents to display</p>
+                ) : (
+                  <div className="incidents-list">
+                    {incidents.map((incident) => (
+                      <div key={incident.id} className="incident-item">
+                        <span className="incident-type">{incident.incident_type}</span>
+                        <span className="incident-location">
+                          📍 {incident.latitude.toFixed(4)}, {incident.longitude.toFixed(4)}
+                        </span>
+                        <span className="incident-time">
+                          {new Date(incident.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="modal-actions">
               <button onClick={() => setShowTeamDetails(false)} className="cancel-btn">
                 Close

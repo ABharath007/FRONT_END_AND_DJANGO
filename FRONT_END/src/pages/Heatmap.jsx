@@ -4,7 +4,6 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 import axios from "axios";
-import MenuBar from "./MenuBar";
 import "../style/Heatmap.css";
 
 const TYPE_INTENSITY = {
@@ -64,7 +63,7 @@ function ClickHandler({ setLat, setLng }) {
   return null;
 }
 
-export default function Heatmap({ onLogout, onNav }) {
+export default function Heatmap({ onBack }) {
   const [points, setPoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lat, setLat] = useState("");
@@ -167,10 +166,11 @@ export default function Heatmap({ onLogout, onNav }) {
   if (loading) return <div>Loading heatmap data...</div>;
 
   return (
-    <>
-      <MenuBar onLogout={onLogout} onNav={onNav} />
-      <div className="heatmap-container">
+    <div className="heatmap-container">
+      <div className="heatmap-header">
+        {onBack && <button onClick={onBack} className="back-btn">←</button>}
         <h1 className="heatmap-title">🗺️ Heatmap Visualization</h1>
+      </div>
         <form className="add-point-form" onSubmit={submitPoint}>
           <input type="text" placeholder="Latitude" value={lat} readOnly />
           <input type="text" placeholder="Longitude" value={lng} readOnly />
@@ -221,7 +221,6 @@ export default function Heatmap({ onLogout, onNav }) {
             </Marker>
           ))}
         </MapContainer>
-      </div>
-    </>
+    </div>
   );
 }

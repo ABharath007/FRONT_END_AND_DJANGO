@@ -289,6 +289,22 @@
   background: #a8a8a8;
 }
 
+/* Verification Badge */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #1da1f2;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
 @media (max-width: 900px) {
   .messages-wrap { grid-template-columns: 0 1fr; }
   .chat-sidebar { display: none; }

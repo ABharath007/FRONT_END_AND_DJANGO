@@ -5,6 +5,8 @@ import ResourceManagement from "./ResourceManagement";
 import TeamCommunication from "./TeamCommunication";
 import TeamAnalytics from "./TeamAnalytics";
 import Teams from "./Teams";
+import Messages from "./Messages";
+import Heatmap from "./Heatmap";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -177,6 +179,13 @@ export default function TeamDashboard({ onLogout }) {
   if (currentView === "teams") {
     return <Teams onBack={() => setCurrentView("dashboard")} />;
   }
+  if (currentView === "messages") {
+    const token = localStorage.getItem("accessToken");
+    return <Messages userToken={token} onLogout={onLogout} onNav={() => setCurrentView("dashboard")} currentUsername={team_member?.username} />;
+  }
+  if (currentView === "heatmap") {
+    return <Heatmap onBack={() => setCurrentView("dashboard")} />;
+  }
 
   return (
     <div className="team-dashboard">
@@ -261,6 +270,14 @@ export default function TeamDashboard({ onLogout }) {
             <span className="qa-desc">Coordinate with team</span>
           </button>
           <button
+            onClick={() => setCurrentView("heatmap")}
+            className="quick-access-btn heatmap"
+          >
+            <span className="qa-icon">🗺️</span>
+            <span className="qa-text">Heatmap</span>
+            <span className="qa-desc">Interactive incident map</span>
+          </button>
+          <button
             onClick={() => setCurrentView("analytics")}
             className="quick-access-btn analytics"
           >
@@ -333,7 +350,10 @@ export default function TeamDashboard({ onLogout }) {
                         <span className="incident-status pending">{sos.status}</span>
                       </div>
                       <div className="incident-details">
-                        <p><strong>👤 User:</strong> {sos.username}</p>
+                        <p>
+                          <strong>👤 User:</strong> {sos.username}
+                          {sos.is_verified && <span className="verified-badge">✓</span>}
+                        </p>
                         <p><strong>📞 Phone:</strong> {sos.phone_number}</p>
                         <p>
                           <strong>📍 Location:</strong> {sos.latitude}, {sos.longitude}
@@ -644,7 +664,10 @@ export default function TeamDashboard({ onLogout }) {
               </div>
               <div className="detail-row">
                 <strong>User:</strong>
-                <span>{selectedSOS.username}</span>
+                <span>
+                  {selectedSOS.username}
+                  {selectedSOS.is_verified && <span className="verified-badge">✓</span>}
+                </span>
               </div>
               <div className="detail-row">
                 <strong>Phone:</strong>

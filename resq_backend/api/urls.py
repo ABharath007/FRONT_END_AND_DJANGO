@@ -42,6 +42,8 @@ from .views import (
     MyTeamRequestsView,
     ApproveJoinRequestView,
     RejectJoinRequestView,
+    TeamMembersView,
+    TeamIncidentsView,
 )
 
 urlpatterns = [
@@ -115,4 +117,6 @@ urlpatterns = [
     path('teams/requests/', MyTeamRequestsView.as_view(), name='my-team-requests'),
     path('teams/requests/<int:request_id>/approve/', ApproveJoinRequestView.as_view(), name='approve-request'),
     path('teams/requests/<int:request_id>/reject/', RejectJoinRequestView.as_view(), name='reject-request'),
+    path('teams/<int:team_id>/members/', TeamMembersView.as_view(), name='team-members'),
+    path('incidents/heatmap/', TeamIncidentsView.as_view(), name='team-incidents-heatmap'),
 ]

@@ -793,9 +793,13 @@ class MyTeamsView(APIView):
     
     def get(self, request):
         try:
+            from django.db.models import Count, Q
             team_member = TeamMember.objects.get(user=request.user)
             memberships = TeamMembership.objects.filter(member=team_member, is_approved=True)
-            teams = [m.team for m in memberships]
+            team_ids = [m.team.id for m in memberships]
+            teams = Team.objects.filter(id__in=team_ids).annotate(
+                member_count=Count('members', filter=Q(members__is_approved=True), distinct=True)
+            )
             serializer = TeamSerializer(teams, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except TeamMember.DoesNotExist:
@@ -921,3 +925,32 @@ class RejectJoinRequestView(APIView):
             return Response({"error": "Team member profile not found"}, status=status.HTTP_404_NOT_FOUND)
         except TeamJoinRequest.DoesNotExist:
             return Response({"error": "Request not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class TeamMembersView(APIView):
+    """Get all members of a specific team"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, team_id):
+        try:
+            team = Team.objects.get(id=team_id, is_active=True)
+            memberships = TeamMembership.objects.filter(team=team, is_approved=True).select_related('member__user')
+            serializer = TeamMembershipSerializer(memberships, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Team.DoesNotExist:
+            return Response({"error": "Team not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class TeamIncidentsView(APIView):
+    """Get incidents for heat map visualization"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            # Get all active incidents with location data
+            incidents = Incident.objects.filter(
+                latitude__isnull=False,
+                longitude__isnull=False
+            ).values('id', 'latitude', 'longitude', 'incident_type', 'created_at')
+            
+            return Response(list(incidents), status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

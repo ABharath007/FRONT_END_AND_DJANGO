@@ -168,7 +168,10 @@ export default function TeamCommunication({ onBack, teamMember }) {
                     {message.is_broadcast ? "📢" : "👤"}
                   </span>
                   <div>
-                    <h3>{message.sender_name}</h3>
+                    <h3>
+                      {message.sender_name}
+                      {message.sender_verified && <span className="verified-badge">✓</span>}
+                    </h3>
                     <p className="sender-dept">{message.sender_department}</p>
                   </div>
                 </div>

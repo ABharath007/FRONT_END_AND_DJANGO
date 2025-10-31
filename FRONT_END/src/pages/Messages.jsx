@@ -12,6 +12,7 @@ const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [verifiedUsers, setVerifiedUsers] = useState(new Set());
   const [viewedThreads, setViewedThreads] = useState(() => {
     // Load viewed threads from localStorage
     const saved = localStorage.getItem('viewedThreads');
@@ -98,13 +99,15 @@ const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
       headers: { Authorization: `Bearer ${userToken}` },
     });
     // Make sure we get an array
-    if (Array.isArray(response.data)) {
-      setUsers(response.data);
-    } else if (Array.isArray(response.data?.users)) {
-      setUsers(response.data.users);
-    } else {
-      setUsers([]); // fallback
-    }
+    const usersData = Array.isArray(response.data) ? response.data : 
+                      Array.isArray(response.data?.users) ? response.data.users : [];
+    setUsers(usersData);
+    
+    // Extract verified users
+    const verified = new Set(
+      usersData.filter(u => u.is_verified).map(u => u.username)
+    );
+    setVerifiedUsers(verified);
   } catch (err) {
     console.error("Failed to fetch users:", err);
     setUsers([]); // fallback on error
@@ -365,7 +368,10 @@ const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
                     onClick={() => handleThreadClick("dm", u.id)}
                   >
                     <span className="avatar" aria-hidden>👤</span>
-                    <span className="name">{u.username || u.email}</span>
+                    <span className="name">
+                      {u.username || u.email}
+                      {verifiedUsers.has(u.username) && <span className="verified-badge">✓</span>}
+                    </span>
                     {msgCount > 0 && <span className="msg-count">{msgCount}</span>}
                   </button>
                 );
@@ -414,7 +420,10 @@ const Messages = ({ userToken, onLogout, onNav, currentUsername }) => {
                   >
                     <div className="bubble">
                       {activeThread.type === "global" && (
-                        <span className="sender">{msg.sender_username}</span>
+                        <span className="sender">
+                          {msg.sender_username}
+                          {verifiedUsers.has(msg.sender_username) && <span className="verified-badge">✓</span>}
+                        </span>
                       )}
                       <p>{msg.text}</p>
                       <div className="message-footer">

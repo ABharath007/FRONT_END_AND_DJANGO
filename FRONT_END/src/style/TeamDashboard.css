@@ -190,6 +190,22 @@
   border-top: 5px solid #2196f3;
 }
 
+.quick-access-btn.teams:hover {
+  border-top: 5px solid #9c27b0;
+}
+
+.quick-access-btn.heatmap:hover {
+  border-top: 5px solid #f44336;
+}
+
+.quick-access-btn.messages:hover {
+  border-top: 5px solid #00bcd4;
+}
+
+.quick-access-btn.heatmapviz:hover {
+  border-top: 5px solid #ff5722;
+}
+
 .qa-icon {
   font-size: 48px;
   margin-bottom: 5px;
@@ -801,6 +817,22 @@
 
 .close-btn:hover {
   background: #e0e0e0;
+}
+
+/* Verification Badge */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #1da1f2;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  margin-left: 4px;
+  vertical-align: middle;
 }
 
 @media (max-width: 768px) {

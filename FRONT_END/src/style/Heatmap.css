@@ -10,6 +10,36 @@
   align-items: center;
 }
 
+.heatmap-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  padding: 10px 15px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 28px;
+  color: #000;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: translateX(-5px);
+}
+
+.heatmap-title {
+  text-align: center;
+  color: #333;
+  margin: 0;
+  flex: 1;
+}
+
 .heatmap-container h2 {
   text-align: center;
   color: #333;

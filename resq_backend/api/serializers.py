@@ -29,10 +29,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source="username", read_only=True)
     profile = UserProfileSerializer(required=False)
+    is_verified = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'name', 'email', 'profile']
+        fields = ['id', 'username', 'name', 'email', 'profile', 'is_verified']
+    
+    def get_is_verified(self, obj):
+        try:
+            return obj.team_profile.is_verified
+        except:
+            return False
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
@@ -50,16 +57,23 @@ class UserSerializer(serializers.ModelSerializer):
 class SOSReportSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     phone_number = serializers.SerializerMethodField()
+    is_verified = serializers.SerializerMethodField()
     
     class Meta:
         model = SOSReport
-        fields = ['id', 'date', 'type', 'status', 'username', 'phone_number', 'latitude', 'longitude', 'description']
+        fields = ['id', 'date', 'type', 'status', 'username', 'phone_number', 'latitude', 'longitude', 'description', 'is_verified']
     
     def get_phone_number(self, obj):
         try:
             return obj.user.profile.phone
         except:
             return "N/A"
+    
+    def get_is_verified(self, obj):
+        try:
+            return obj.user.team_profile.is_verified
+        except:
+            return False
 
 # ---------- LOCATION SHARE SERIALIZER ----------
 class LocationShareSerializer(serializers.ModelSerializer):
@@ -258,13 +272,14 @@ class ResourceAssignmentSerializer(serializers.ModelSerializer):
 class TeamMessageSerializer(serializers.ModelSerializer):
     sender_name = serializers.CharField(source='sender.user.username', read_only=True)
     sender_department = serializers.CharField(source='sender.get_department_display', read_only=True)
+    sender_verified = serializers.BooleanField(source='sender.is_verified', read_only=True)
     department_display = serializers.CharField(source='get_department_display', read_only=True, allow_null=True)
     priority_display = serializers.CharField(source='get_priority_display', read_only=True)
     read_count = serializers.SerializerMethodField()
     
     class Meta:
         model = TeamMessage
-        fields = ['id', 'sender', 'sender_name', 'sender_department', 'department', 'department_display', 
+        fields = ['id', 'sender', 'sender_name', 'sender_department', 'sender_verified', 'department', 'department_display', 
                   'message', 'is_broadcast', 'priority', 'priority_display', 'created_at', 'read_count']
         read_only_fields = ['sender', 'created_at']
     
@@ -296,23 +311,25 @@ class IncidentStatisticsSerializer(serializers.ModelSerializer):
 # ========== TEAM MANAGEMENT SERIALIZERS ==========
 class TeamSerializer(serializers.ModelSerializer):
     leader_name = serializers.CharField(source='leader.user.username', read_only=True)
+    leader_verified = serializers.BooleanField(source='leader.is_verified', read_only=True)
     department_display = serializers.CharField(source='get_department_display', read_only=True)
     member_count = serializers.IntegerField(read_only=True, required=False)
     
     class Meta:
         model = Team
-        fields = ['id', 'name', 'description', 'leader', 'leader_name', 'department', 
+        fields = ['id', 'name', 'description', 'leader', 'leader_name', 'leader_verified', 'department', 
                   'department_display', 'created_at', 'is_active', 'max_members', 'member_count']
-        read_only_fields = ['created_at', 'leader', 'leader_name', 'member_count']
+        read_only_fields = ['created_at', 'leader', 'leader_name', 'leader_verified', 'member_count']
 
 class TeamMembershipSerializer(serializers.ModelSerializer):
     team_name = serializers.CharField(source='team.name', read_only=True)
     member_name = serializers.CharField(source='member.user.username', read_only=True)
+    member_verified = serializers.BooleanField(source='member.is_verified', read_only=True)
     role_display = serializers.CharField(source='get_role_in_team_display', read_only=True)
     
     class Meta:
         model = TeamMembership
-        fields = ['id', 'team', 'team_name', 'member', 'member_name', 'joined_at', 
+        fields = ['id', 'team', 'team_name', 'member', 'member_name', 'member_verified', 'joined_at', 
                   'is_approved', 'role_in_team', 'role_display']
         read_only_fields = ['joined_at']
 
