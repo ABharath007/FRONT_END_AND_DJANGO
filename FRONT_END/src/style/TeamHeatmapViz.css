@@ -1,29 +1,27 @@
-.heatmap-container {
-  max-width: 1400px;
-  margin: 20px auto;
-  padding: 25px;
-  background-color: #f5f7fa;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+/* TeamHeatmapViz.css - Full width for Team Dashboard */
+
+.team-heatmap-container {
+  width: 100%;
+  height: 100vh;
+  background: #f5f7fa;
+  padding: 20px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-height: 90vh;
 }
 
-.heatmap-header {
+.team-heatmap-header {
   display: flex;
   align-items: center;
   gap: 15px;
-  width: 100%;
-  margin-bottom: 25px;
   background: white;
-  padding: 20px;
+  padding: 20px 24px;
   border-radius: 12px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
 }
 
-.back-btn {
+.team-heatmap-back-btn {
   padding: 10px 15px;
   background: transparent;
   border: none;
@@ -34,11 +32,11 @@
   transition: transform 0.3s ease;
 }
 
-.back-btn:hover {
+.team-heatmap-back-btn:hover {
   transform: translateX(-5px);
 }
 
-.heatmap-title {
+.team-heatmap-title {
   text-align: center;
   color: #333;
   margin: 0;
@@ -47,44 +45,28 @@
   font-weight: 700;
 }
 
-.heatmap-container h2 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-/* Map container must have explicit height to render properly */
-#map {
-  width: 100%;
-  height: 500px; /* Adjust height as needed */
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-/* Optional: heatmap controls / add point form styling */
-.add-point-form {
+.team-heatmap-form {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 20px;
-  padding: 20px;
+  padding: 20px 24px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  width: 100%;
+  margin-bottom: 20px;
 }
 
-.add-point-form input,
-.add-point-form select,
-.add-point-form button {
+.team-heatmap-form input,
+.team-heatmap-form select,
+.team-heatmap-form button {
   padding: 10px 15px;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
   font-size: 14px;
 }
 
-.add-point-form button {
+.team-heatmap-form button {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
@@ -93,60 +75,71 @@
   transition: all 0.3s ease;
 }
 
-.add-point-form button:hover:not(:disabled) {
+.team-heatmap-form button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
 
-.add-point-form button:disabled {
+.team-heatmap-form button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.error-message {
-  color: red;
+.team-heatmap-error {
+  color: #dc2626;
   text-align: center;
-  margin-bottom: 10px;
-}
-/* heatmap.css */
-
-/* ... your existing styles for .heatmap-container, .add-point-form etc. ... */
-
-.error {
-    color: red;
-    text-align: center;
-    width: 100%;
-    margin-top: 10px;
+  width: 100%;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-/* NEW: Styles for the custom popup */
-.incident-popup {
-    font-family: Arial, sans-serif;
+.team-heatmap-map-wrapper {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  min-height: 500px;
 }
 
-.incident-popup strong {
+.team-heatmap-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #667eea;
+}
+
+/* Incident Popup */
+.team-incident-popup {
+  font-family: Arial, sans-serif;
+}
+
+.team-incident-popup strong {
   font-size: 1.1em;
   color: #333;
 }
 
-.incident-popup p {
+.team-incident-popup p {
   margin: 5px 0;
 }
 
-.incident-popup hr {
+.team-incident-popup hr {
   border: none;
   border-top: 1px solid #ccc;
   margin: 8px 0;
 }
 
-.incident-popup small {
+.team-incident-popup small {
   color: #555;
   font-size: 0.85em;
   line-height: 1.4;
-  display: block; /* Ensures proper spacing */
+  display: block;
 }
 
-.delete-button {
+.team-delete-button {
   width: 100%;
   margin-top: 10px;
   padding: 6px;
@@ -159,15 +152,15 @@
   font-weight: bold;
 }
 
-.delete-button:hover {
+.team-delete-button:hover {
   background-color: #cc0000;
 }
 
-/* Optional: To prevent default leaflet popup padding if it interferes */
+/* Leaflet popup styling */
 .leaflet-popup-content {
-    margin: 10px;
+  margin: 10px;
 }
 
 .leaflet-popup-content-wrapper {
-    border-radius: 8px;
+  border-radius: 8px;
 }

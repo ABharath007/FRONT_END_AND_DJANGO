@@ -136,25 +136,26 @@
 
 .quick-access-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 }
 
 .quick-access-btn {
   background: white;
   border: none;
-  border-radius: 15px;
-  padding: 25px;
+  border-radius: 10px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 10px;
-  text-align: center;
+  text-align: left;
   position: relative;
   overflow: hidden;
+  height: 60px;
 }
 
 .quick-access-btn::before {
@@ -207,19 +208,26 @@
 }
 
 .qa-icon {
-  font-size: 48px;
-  margin-bottom: 5px;
+  font-size: 28px;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .qa-text {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   color: #333;
+  margin: 0;
+  display: block;
+  line-height: 1.2;
 }
 
 .qa-desc {
-  font-size: 13px;
+  font-size: 11px;
   color: #999;
+  margin: 3px 0 0 0;
+  display: block;
+  line-height: 1.2;
 }
 
 .tabs {

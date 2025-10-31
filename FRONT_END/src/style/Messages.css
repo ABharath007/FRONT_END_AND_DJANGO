@@ -1,20 +1,25 @@
 /* Messages.css - WhatsApp-like UI */
 
 :root {
-  --primary: #3b5998; /* brand blue */
-  --bg: #f7f8fa;
+  --primary: #667eea; /* brand purple/blue */
+  --bg: #f5f7fa;
   --text: #1f2937;
   --muted: #9aa5b1;
-  --bubble-me: #dbeafe;   /* light blue */
+  --bubble-me: #e8eaf6;   /* light purple */
   --bubble-you: #e5e7eb;  /* gray */
   --sidebar: #ffffff;
 }
 
 .messages-wrap {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   height: 100vh;
   background: var(--bg);
+  max-width: 1400px;
+  margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* Offset by fixed MenuBar (85px default, 260px on hover) */
@@ -32,6 +37,22 @@
   padding: 16px;
   font-weight: 800;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.back-btn-messages {
+  padding: 5px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--primary);
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+.back-btn-messages:hover {
+  transform: translateX(-3px);
 }
 .sidebar-divider {
   padding: 8px 16px;

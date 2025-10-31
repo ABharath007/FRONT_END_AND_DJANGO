@@ -4,8 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 import axios from "axios";
-import MenuBar from "./MenuBar";
-import "../style/Heatmap.css";
+import "../style/TeamHeatmapViz.css";
 
 const TYPE_INTENSITY = {
   flood: 1,
@@ -22,6 +21,7 @@ const INCIDENT_COLORS = {
   roadblock: "gray",
   other: "green",
 };
+
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Heatmap layer component
@@ -42,7 +42,7 @@ function HeatmapLayer({ points }) {
   return null;
 }
 
-// Component to recenter map on user location update
+// Component to recenter map
 function RecenterMap({ latlng }) {
   const map = useMap();
   useEffect(() => {
@@ -64,7 +64,7 @@ function ClickHandler({ setLat, setLng }) {
   return null;
 }
 
-export default function Heatmap({ onBack, onLogout, onNav }) {
+export default function TeamHeatmapViz({ onBack }) {
   const [points, setPoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lat, setLat] = useState("");
@@ -73,9 +73,7 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [userLocation, setUserLocation] = useState([17.385044, 78.486671]);
-
-  // NEW: State for incident duration
-  const [duration, setDuration] = useState(7200); // Default to 2 hours (in seconds)
+  const [duration, setDuration] = useState(7200);
 
   const token = localStorage.getItem("accessToken");
   const config = {
@@ -93,7 +91,7 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
       setPoints(res.data);
     } catch (err) {
       console.error("Error fetching heatmap data:", err);
-      setError(err.response?.status === 401 ? "Session expired. Please login again." : "Failed to load heatmap data.");
+      setError("Failed to load heatmap data.");
     }
     setLoading(false);
   };
@@ -102,7 +100,7 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
     fetchPoints();
   }, []);
   
-  // Live update userLocation with watchPosition
+  // Live update userLocation
   useEffect(() => {
     if ("geolocation" in navigator) {
       const watchId = navigator.geolocation.watchPosition(
@@ -117,7 +115,6 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
       );
       return () => navigator.geolocation.clearWatch(watchId);
     } else {
-      console.log("Geolocation not supported");
       setUserLocation([17.385044, 78.486671]);
     }
   }, []);
@@ -138,76 +135,74 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
           lng: parseFloat(lng),
           incident_type: incidentType,
           description,
-          duration: parseInt(duration, 10), // Send duration to backend
+          duration: parseInt(duration, 10),
         },
         config
       );
       setLat("");
       setLng("");
       setDescription("");
-      fetchPoints(); // Refetch points to show the new one
+      fetchPoints();
     } catch (err) {
       console.error("Error adding point:", err);
       setError("Failed to add point. Please try again.");
     }
   };
   
-  // NEW: Function to handle incident deletion
+  // Delete incident
   const handleDelete = async (incidentId) => {
     if (!window.confirm("Are you sure you want to delete this incident?")) return;
     try {
       await axios.delete(`${API_URL}/api/heatmap-data/${incidentId}/`, config);
-      fetchPoints(); // Refetch points to update the map
+      fetchPoints();
     } catch (err) {
       console.error("Error deleting incident:", err);
-      setError(err.response?.status === 403 ? "You can only delete your own incidents." : "Failed to delete incident.");
+      setError("Failed to delete incident.");
     }
   };
 
-  if (loading) return <div>Loading heatmap data...</div>;
+  if (loading) return <div className="team-heatmap-loading">Loading heatmap data...</div>;
 
   return (
-    <>
-      {onLogout && <MenuBar onLogout={onLogout} onNav={onNav} />}
-      <div className="heatmap-container">
-        <div className="heatmap-header">
-          {onBack && <button onClick={onBack} className="back-btn">←</button>}
-          <h1 className="heatmap-title">🗺️ Heatmap Visualization</h1>
-        </div>
-        <form className="add-point-form" onSubmit={submitPoint}>
-          <input type="text" placeholder="Latitude" value={lat} readOnly />
-          <input type="text" placeholder="Longitude" value={lng} readOnly />
-          <select value={incidentType} onChange={(e) => setIncidentType(e.target.value)}>
-            {Object.keys(TYPE_INTENSITY).map((type) => (
-              <option key={type} value={type}>
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </option>
-            ))}
-          </select>
-          {/* Duration selection dropdown */}
-          <select value={duration} onChange={(e) => setDuration(parseInt(e.target.value, 10))}>
-            <option value="3600">Keep for 1 Hour</option>
-            <option value="7200">Keep for 2 Hours</option>
-            <option value="21600">Keep for 6 Hours</option>
-            <option value="86400">Keep for 24 Hours</option>
-          </select>
-          <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <button type="submit" disabled={!lat || !lng}>Add Incident</button>
-          {error && <p className="error">{error}</p>}
-        </form>
+    <div className="team-heatmap-container">
+      <div className="team-heatmap-header">
+        {onBack && <button onClick={onBack} className="team-heatmap-back-btn">←</button>}
+        <h1 className="team-heatmap-title">🗺️ Heatmap Visualization</h1>
+      </div>
+      
+      <form className="team-heatmap-form" onSubmit={submitPoint}>
+        <input type="text" placeholder="Latitude" value={lat} readOnly />
+        <input type="text" placeholder="Longitude" value={lng} readOnly />
+        <select value={incidentType} onChange={(e) => setIncidentType(e.target.value)}>
+          {Object.keys(TYPE_INTENSITY).map((type) => (
+            <option key={type} value={type}>
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </option>
+          ))}
+        </select>
+        <select value={duration} onChange={(e) => setDuration(parseInt(e.target.value, 10))}>
+          <option value="3600">Keep for 1 Hour</option>
+          <option value="7200">Keep for 2 Hours</option>
+          <option value="21600">Keep for 6 Hours</option>
+          <option value="86400">Keep for 24 Hours</option>
+        </select>
+        <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <button type="submit" disabled={!lat || !lng}>Add Incident</button>
+        {error && <p className="team-heatmap-error">{error}</p>}
+      </form>
 
-        <MapContainer center={userLocation} zoom={13} scrollWheelZoom={true} style={{ height: "500px", width: "100%" }}>
+      <div className="team-heatmap-map-wrapper">
+        <MapContainer center={userLocation} zoom={13} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
           <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <HeatmapLayer points={points} />
           <ClickHandler setLat={setLat} setLng={setLng} />
           <RecenterMap latlng={userLocation} />
           <Marker position={userLocation}><Popup>You are here</Popup></Marker>
 
-          {/* Updated Marker mapping to include new details in Popup */}
           {points.map((p) => (
             <Marker key={p.id} position={[p.lat, p.lng]} icon={L.divIcon({ className: "custom-marker", html: `<div style="background-color:${INCIDENT_COLORS[p.incident_type] || "black"}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white;"></div>` })}>
               <Popup>
-                <div className="incident-popup">
+                <div className="team-incident-popup">
                   <strong>{p.incident_type.charAt(0).toUpperCase() + p.incident_type.slice(1)}</strong>
                   <p>{p.description || "No description"}</p>
                   <hr/>
@@ -216,7 +211,7 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
                     <br />
                     On: {new Date(p.created_at).toLocaleString()}
                   </small>
-                  <button className="delete-button" onClick={() => handleDelete(p.id)}>
+                  <button className="team-delete-button" onClick={() => handleDelete(p.id)}>
                     Delete Incident
                   </button>
                 </div>
@@ -225,6 +220,6 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
           ))}
         </MapContainer>
       </div>
-    </>
+    </div>
   );
 }

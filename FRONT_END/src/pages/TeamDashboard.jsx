@@ -5,8 +5,8 @@ import ResourceManagement from "./ResourceManagement";
 import TeamCommunication from "./TeamCommunication";
 import TeamAnalytics from "./TeamAnalytics";
 import Teams from "./Teams";
-import Messages from "./Messages";
-import Heatmap from "./Heatmap";
+import TeamMessages from "./TeamMessages";
+import TeamHeatmapViz from "./TeamHeatmapViz";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -181,10 +181,10 @@ export default function TeamDashboard({ onLogout }) {
   }
   if (currentView === "messages") {
     const token = localStorage.getItem("accessToken");
-    return <Messages userToken={token} onLogout={onLogout} onNav={() => setCurrentView("dashboard")} currentUsername={team_member?.username} />;
+    return <TeamMessages userToken={token} onBack={() => setCurrentView("dashboard")} currentUsername={team_member?.username} />;
   }
   if (currentView === "heatmap") {
-    return <Heatmap onBack={() => setCurrentView("dashboard")} />;
+    return <TeamHeatmapViz onBack={() => setCurrentView("dashboard")} />;
   }
 
   return (
@@ -258,40 +258,60 @@ export default function TeamDashboard({ onLogout }) {
             className="quick-access-btn resources"
           >
             <span className="qa-icon">🔧</span>
-            <span className="qa-text">Resources</span>
-            <span className="qa-desc">Manage equipment & vehicles</span>
+            <div>
+              <span className="qa-text">Resources</span>
+              <span className="qa-desc">Manage equipment & vehicles</span>
+            </div>
           </button>
           <button
             onClick={() => setCurrentView("communication")}
             className="quick-access-btn communication"
           >
             <span className="qa-icon">💬</span>
-            <span className="qa-text">Team Chat</span>
-            <span className="qa-desc">Coordinate with team</span>
+            <div>
+              <span className="qa-text">Team Chat</span>
+              <span className="qa-desc">Coordinate with team</span>
+            </div>
           </button>
           <button
             onClick={() => setCurrentView("heatmap")}
             className="quick-access-btn heatmap"
           >
             <span className="qa-icon">🗺️</span>
-            <span className="qa-text">Heatmap</span>
-            <span className="qa-desc">Interactive incident map</span>
+            <div>
+              <span className="qa-text">Heatmap</span>
+              <span className="qa-desc">Interactive incident map</span>
+            </div>
           </button>
           <button
             onClick={() => setCurrentView("analytics")}
             className="quick-access-btn analytics"
           >
             <span className="qa-icon">📊</span>
-            <span className="qa-text">Analytics</span>
-            <span className="qa-desc">View performance metrics</span>
+            <div>
+              <span className="qa-text">Analytics</span>
+              <span className="qa-desc">View performance metrics</span>
+            </div>
           </button>
           <button
             onClick={() => setCurrentView("teams")}
             className="quick-access-btn teams"
           >
             <span className="qa-icon">🏢</span>
-            <span className="qa-text">Teams</span>
-            <span className="qa-desc">Create & join teams</span>
+            <div>
+              <span className="qa-text">Teams</span>
+              <span className="qa-desc">Create & join teams</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setCurrentView("messages")}
+            className="quick-access-btn messages"
+          >
+            <span className="qa-icon">💬</span>
+            <div>
+              <span className="qa-text">Messages</span>
+              <span className="qa-desc">Global & direct chat</span>
+            </div>
           </button>
         </div>
       </div>
