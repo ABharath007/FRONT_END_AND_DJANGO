@@ -211,7 +211,8 @@ const TeamMessages = ({ userToken, onBack, currentUsername }) => {
     if (!currentUserId) return 0;
     const threadKey = `dm-${userId}`;
     
-    const count = messages.filter((m) => {
+    // Get all messages in this thread
+    const threadMessages = messages.filter((m) => {
       const mSender = m.sender_id ?? m.sender;
       const mReceiver = m.receiver_id ?? m.receiver;
       if (!mReceiver && mReceiver !== 0) return false;
@@ -219,26 +220,40 @@ const TeamMessages = ({ userToken, onBack, currentUsername }) => {
         (mSender === userId && mReceiver === currentUserId) ||
         (mSender === currentUserId && mReceiver === userId)
       );
-    }).length;
+    });
     
-    // Only hide count if currently viewing this thread
+    // Get last viewed count from localStorage
+    const lastViewedCount = parseInt(localStorage.getItem(`lastCount-${threadKey}`) || '0');
+    
+    // Calculate unread messages
+    const unreadCount = Math.max(0, threadMessages.length - lastViewedCount);
+    
+    // If currently viewing, update the last viewed count
     if (activeThread.type === 'dm' && activeThread.userId === userId) {
-      return 0;
+      localStorage.setItem(`lastCount-${threadKey}`, threadMessages.length.toString());
+      return 0; // Don't show badge for active thread
     }
     
-    return count;
+    return unreadCount;
   };
 
   // Get global chat message count
   const getGlobalMessageCount = () => {
-    const count = messages.filter(m => !m.receiver && !m.receiver_id).length;
+    const globalMessages = messages.filter(m => !m.receiver && !m.receiver_id);
     
-    // Only hide count if currently viewing global chat
+    // Get last viewed count from localStorage
+    const lastViewedCount = parseInt(localStorage.getItem('lastCount-global') || '0');
+    
+    // Calculate unread messages
+    const unreadCount = Math.max(0, globalMessages.length - lastViewedCount);
+    
+    // If currently viewing, update the last viewed count
     if (activeThread.type === 'global') {
-      return 0;
+      localStorage.setItem('lastCount-global', globalMessages.length.toString());
+      return 0; // Don't show badge for active thread
     }
     
-    return count;
+    return unreadCount;
   };
 
   return (

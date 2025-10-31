@@ -196,34 +196,36 @@ export default function Heatmap({ onBack, onLogout, onNav }) {
           {error && <p className="error">{error}</p>}
         </form>
 
-        <MapContainer center={userLocation} zoom={13} scrollWheelZoom={true} style={{ height: "500px", width: "100%" }}>
-          <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <HeatmapLayer points={points} />
-          <ClickHandler setLat={setLat} setLng={setLng} />
-          <RecenterMap latlng={userLocation} />
-          <Marker position={userLocation}><Popup>You are here</Popup></Marker>
+        <div className="map-wrapper">
+          <MapContainer center={userLocation} zoom={13} scrollWheelZoom={true} style={{ height: "500px", width: "100%" }}>
+            <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <HeatmapLayer points={points} />
+            <ClickHandler setLat={setLat} setLng={setLng} />
+            <RecenterMap latlng={userLocation} />
+            <Marker position={userLocation}><Popup>You are here</Popup></Marker>
 
-          {/* Updated Marker mapping to include new details in Popup */}
-          {points.map((p) => (
-            <Marker key={p.id} position={[p.lat, p.lng]} icon={L.divIcon({ className: "custom-marker", html: `<div style="background-color:${INCIDENT_COLORS[p.incident_type] || "black"}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white;"></div>` })}>
-              <Popup>
-                <div className="incident-popup">
-                  <strong>{p.incident_type.charAt(0).toUpperCase() + p.incident_type.slice(1)}</strong>
-                  <p>{p.description || "No description"}</p>
-                  <hr/>
-                  <small>
-                    Reported by: <strong>{p.username}</strong>
-                    <br />
-                    On: {new Date(p.created_at).toLocaleString()}
-                  </small>
-                  <button className="delete-button" onClick={() => handleDelete(p.id)}>
-                    Delete Incident
-                  </button>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+            {/* Updated Marker mapping to include new details in Popup */}
+            {points.map((p) => (
+              <Marker key={p.id} position={[p.lat, p.lng]} icon={L.divIcon({ className: "custom-marker", html: `<div style="background-color:${INCIDENT_COLORS[p.incident_type] || "black"}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white;"></div>` })}>
+                <Popup>
+                  <div className="incident-popup">
+                    <strong>{p.incident_type.charAt(0).toUpperCase() + p.incident_type.slice(1)}</strong>
+                    <p>{p.description || "No description"}</p>
+                    <hr/>
+                    <small>
+                      Reported by: <strong>{p.username}</strong>
+                      <br />
+                      On: {new Date(p.created_at).toLocaleString()}
+                    </small>
+                    <button className="delete-button" onClick={() => handleDelete(p.id)}>
+                      Delete Incident
+                    </button>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </div>
       </div>
     </>
   );

@@ -288,9 +288,10 @@
 }
 
 .incidents-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
   gap: 12px;
+  width: 100%;
 }
 
 .incident-card {
@@ -864,7 +865,7 @@
   }
 
   .incidents-list {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
   }
   
   .assignments-grid {
