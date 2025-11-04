@@ -355,6 +355,36 @@ div {
   animation: inputSlideIn 0.5s ease-out both;
 }
 
+/* Password toggle button */
+.password-toggle-btn {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 8px;
+  color: #888;
+  transition: all 0.3s ease;
+  outline: none;
+  z-index: 10;
+}
+
+.password-toggle-btn:hover {
+  color: #3b5998;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.password-toggle-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle-btn i {
+  font-size: 16px;
+  pointer-events: none;
+}
+
 .input-container:nth-child(1) {
   animation-delay: 0.5s;
 }

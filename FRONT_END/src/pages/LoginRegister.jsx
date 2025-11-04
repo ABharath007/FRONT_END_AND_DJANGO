@@ -15,6 +15,8 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [error, setError] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
 
   useEffect(() => {
     setIsLoginActive(initialMode === "login");
@@ -166,7 +168,7 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
             </div>
             <div className="input-container">
               <input
-                type="password"
+                type={showLoginPassword ? "text" : "password"}
                 className="input-field"
                 id="loginPass"
                 required
@@ -174,6 +176,14 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
                 onChange={(e) => setLoginPassword(e.target.value)}
               />
               <label htmlFor="loginPass" className="input-label">Password</label>
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowLoginPassword(!showLoginPassword)}
+                aria-label="Toggle password visibility"
+              >
+                <i className={showLoginPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+              </button>
             </div>
             <button type="submit" className="submit-btn">Log in</button>
           </form>
@@ -207,7 +217,7 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
             </div>
             <div className="input-container">
               <input
-                type="password"
+                type={showRegPassword ? "text" : "password"}
                 className="input-field"
                 id="regPass"
                 required
@@ -215,6 +225,14 @@ export default function LoginRegister({ initialMode = "login", onLogin, onBack }
                 onChange={(e) => setRegPassword(e.target.value)}
               />
               <label htmlFor="regPass" className="input-label">Password</label>
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowRegPassword(!showRegPassword)}
+                aria-label="Toggle password visibility"
+              >
+                <i className={showRegPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+              </button>
             </div>
             <button type="submit" className="submit-btn">Register</button>
           </form>
