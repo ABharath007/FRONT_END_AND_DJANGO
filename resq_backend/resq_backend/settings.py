@@ -175,4 +175,8 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 # Enable this ONLY if using HTTPS (Render uses HTTPS)
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
+<<<<<<< HEAD
 CSRF_COOKIE_SECURE = True
+=======
+CSRF_COOKIE_SECURE = True
+>>>>>>> 0d55338 (added whitenoise)
