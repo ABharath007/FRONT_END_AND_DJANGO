@@ -2,30 +2,28 @@ from pathlib import Path
 import os
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# --- SECURITY & HOSTS ---
-# These settings are read from environment variables in production for security.
-# In local development, they fall back to the default values provided.
+# =========================
+# 🔐 SECURITY SETTINGS
+# =========================
 
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-cljbx6u5@yn)o_^!ohrj%n6c8+f1fr%o8q0&br&q8w744(3#tp' # Your local development key
-)
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# DEBUG is False in production, True in development.
-# The value from the environment variable will be a string 'False', so we compare it.
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS = [
+    'front-end-and-django.onrender.com',
+    'front-end-and-django-1.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 
-# --- APPLICATION DEFINITION ---
+# =========================
+# 📦 INSTALLED APPS
+# =========================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -34,19 +32,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Third-party apps
+
+    # Third-party
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
 
-    # Your apps
+    # Local apps
     'api',
 ]
+
+
+# =========================
+# ⚙️ MIDDLEWARE
+# =========================
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'resq_backend.urls'
 
@@ -76,31 +81,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'resq_backend.wsgi.application'
 
 
-# --- DATABASE ---
-# This uses your new PostgreSQL database on Render (in production)
-# and your local MySQL database (in development).
+# =========================
+# 🗄️ DATABASE (Render PostgreSQL)
+# =========================
 
-if 'DATABASE_URL' in os.environ:
-    DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'resq_db',
-            'USER': 'resq_user',
-            'PASSWORD': 'Bharath1$$',
-            'HOST': 'localhost',
-            'PORT': '3306',
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-            }
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
 
 
-# --- PASSWORD VALIDATION ---
+# =========================
+# 🔐 PASSWORD VALIDATION
+# =========================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -118,7 +114,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# --- INTERNATIONALIZATION ---
+# =========================
+# 🌍 INTERNATIONALIZATION
+# =========================
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -126,16 +124,26 @@ USE_I18N = True
 USE_TZ = True
 
 
-# --- STATIC FILES ---
+# =========================
+# 📁 STATIC FILES
+# =========================
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# --- MISCELLANEOUS ---
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+# =========================
+# 🔧 DEFAULT SETTINGS
+# =========================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# --- REST FRAMEWORK and CORS ---
+# =========================
+# 🔐 REST FRAMEWORK
+# =========================
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -143,14 +151,28 @@ REST_FRAMEWORK = {
     )
 }
 
-# In production, this will allow your deployed frontend to talk to your backend.
-# In development, it uses your localhost settings.
-if 'CORS_ALLOWED_ORIGINS_DEPLOYED' in os.environ:
-    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS_DEPLOYED').split(',')
-else:
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ]
+
+# =========================
+# 🌐 CORS SETTINGS
+# =========================
+
+CORS_ALLOWED_ORIGINS = [
+    "https://front-end-and-django-1.onrender.com",
+    "https://front-end-and-django.onrender.com",
+]
+
+# (optional for debugging)
+# CORS_ALLOW_ALL_ORIGINS = True
+
+
+# =========================
+# 🔒 SECURITY (Production Best Practices)
+# =========================
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable this ONLY if using HTTPS (Render uses HTTPS)
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
